@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache and Test API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Clear Cache and Test API</h1>
+    
+    <div class="test-section">
+        <h3>1. Clear Browser Cache</h3>
+        <button onclick="clearCache()">Clear Cache</button>
+        <div id="cache-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Lessons API</h3>
+        <button onclick="testLessonsAPI()">Test /api/lessons</button>
+        <div id="lessons-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Check Network Requests</h3>
+        <button onclick="checkNetworkRequests()">Check Network</button>
+        <div id="network-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000';
+
+        function clearCache() {
+            const resultDiv = document.getElementById('cache-result');
+            resultDiv.innerHTML = '<div class="loading">🔄 Clearing cache...</div>';
+            
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                
+                // Clear sessionStorage
+                sessionStorage.clear();
+                
+                // Clear cookies (if any)
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Cache cleared successfully!<br>
+                        - localStorage cleared<br>
+                        - sessionStorage cleared<br>
+                        - cookies cleared<br><br>
+                        <strong>Please refresh the page (Ctrl+F5) to reload everything.</strong>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Error clearing cache: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testLessonsAPI() {
+            const resultDiv = document.getElementById('lessons-result');
+            resultDiv.innerHTML = '<div class="loading">🔄 Testing lessons API...</div>';
+            
+            try {
+                // First login
+                const loginRes = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@example.com',
+                        password: '123123'
+                    })
+                });
+                
+                const loginData = await loginRes.json();
+                
+                if (!loginData.accessToken) {
+                    throw new Error('Login failed');
+                }
+                
+                // Then test lessons API
+                const lessonsRes = await fetch(`${API_BASE}/api/lessons`, {
+                    headers: { 'Authorization': `Bearer ${loginData.accessToken}` }
+                });
+                
+                const lessonsData = await lessonsRes.json();
+                
+                if (lessonsRes.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Lessons API works!<br>
+                            Status: ${lessonsRes.status}<br>
+                            Count: ${lessonsData.length}<br>
+                            <details>
+                                <summary>First 3 lessons</summary>
+                                <pre>${JSON.stringify(lessonsData.slice(0, 3), null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ Lessons API failed<br>
+                            Status: ${lessonsRes.status}<br>
+                            Error: ${lessonsData.error?.message || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Test failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function checkNetworkRequests() {
+            const resultDiv = document.getElementById('network-result');
+            resultDiv.innerHTML = `
+                <div class="success">
+                    <h4>📊 Network Request Instructions:</h4>
+                    <ol>
+                        <li>Open Developer Tools (F12)</li>
+                        <li>Go to Network tab</li>
+                        <li>Refresh the page (Ctrl+F5)</li>
+                        <li>Look for any requests to <code>/api/lessions</code> (wrong spelling)</li>
+                        <li>Check if there are requests to <code>/api/lessons</code> (correct spelling)</li>
+                    </ol>
+                    <p><strong>If you see requests to <code>/api/lessions</code>, that's the source of the 404 error!</strong></p>
+                </div>
+            `;
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            testLessonsAPI();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

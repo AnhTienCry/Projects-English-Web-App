@@ -1,0 +1,158 @@
+/* ✅ Bật chế độ sáng mặc định toàn app, chặn dark mode tự động của trình duyệt */
+:root {
+  color-scheme: light;
+  --bg: #f8fafc;      /* nền xám rất nhạt */
+  --card: #ffffff;    /* card/table */
+  --text: #111827;    /* chữ chính */
+  --muted: #6b7280;   /* chữ phụ */
+  --border: #e5e7eb;  /* viền nhạt */
+  --primary: #2563eb; /* xanh link */
+}
+
+/* Nền + màu chữ cơ bản */
+html, body, #root {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Xóa mọi “global color: #fff” nếu có trước đó */
+* { color: inherit; }
+
+/* Liên kết */
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Tables tổng quát (đủ để bạn thấy chữ ngay) */
+table { width: 100%; background: var(--card); border-collapse: collapse; }
+th, td { border: 1px solid var(--border); padding: 10px; }
+th { background: #f3f4f6; color: var(--text); text-align: left; }
+
+/* Tiêu đề/đoạn văn bảo đảm không bị trắng */
+h1, h2, h3, h4, h5, h6, p, span, label { color: var(--text); }
+
+/* Inputs/Buttons để không bị chữ trắng */
+input, textarea, select, button {
+  color: var(--text);
+}
+
+/* Nếu có sidebar tối, chỉ sidebar mới dùng chữ trắng */
+.sidebar, .sidebar * {
+  color: #fff !important;
+}
+
+/* ===== SIDEBAR – Dark on Light App ===== */
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr; /* sidebar + content */
+  min-height: 100vh;
+}
+
+/* Sidebar container */
+.sidebar {
+  background: #111827;                  /* Slate-900 */
+  color: #e5e7eb;                       /* Slate-200 */
+  padding: 16px 12px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 1px 0 0 rgba(0,0,0,.08);
+}
+
+/* App brand */
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  padding: 8px 10px 16px 10px;
+  color: #fff;
+}
+
+/* Menu section */
+.sidebar .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sidebar .menu-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #9ca3af;     /* Slate-400 */
+  padding: 10px 10px 4px 10px;
+}
+
+/* Menu item (link/button) */
+.sidebar .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #e5e7eb;                   /* Slate-200 */
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease, transform .1s ease;
+}
+
+.sidebar .menu-item:hover {
+  background: #1f2937;              /* Slate-800 */
+  color: #ffffff;
+}
+
+.sidebar .menu-item.active {
+  background: #2563eb;              /* Primary */
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* Icon giữ đều màu theo item */
+.sidebar .menu-item .icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  color: currentColor;
+}
+
+/* Footer (info + logout) */
+.sidebar .footer {
+  margin-top: auto;
+  padding: 12px;
+  color: #9ca3af;    /* Slate-400 */
+}
+
+.sidebar .logout-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: #ef4444;  /* Red-500 */
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.sidebar .logout-btn:hover {
+  background: #dc2626;
+}
+
+/* Content area */
+.content {
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px 28px;
+}
+
+/* Mobile (có thể collapse nếu muốn sau này) */
+@media (max-width: 1024px) {
+  .app-shell {
+    grid-template-columns: 76px 1fr;
+  }
+  .sidebar {
+    padding: 10px 8px;
+  }
+  .sidebar .brand span { display: none; }       /* Ẩn chữ, chỉ để icon */
+  .sidebar .menu-item { justify-content: center; }
+  .sidebar .menu-item span { display: none; }   /* Ẩn label, chỉ để icon */
+}

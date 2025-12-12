@@ -1,0 +1,5034 @@
+#!/usr/bin/env node
+/**
+ * =============================================
+ * DATABASE IMPORT SCRIPT - ENGLISH APP
+ * =============================================
+ * 
+ * This is a standalone import script for the English App database.
+ * It includes the exported data and can be run to import all database collections.
+ * 
+ * USAGE:
+ *   1. Make sure you have MongoDB running
+ *   2. Install dependencies: npm install mongoose dotenv
+ *   3. Run this script: node standalone-import-complete.js
+ * 
+ * REQUIREMENTS:
+ *   - Node.js installed
+ *   - MongoDB installed and running
+ *   - Database: english-app (will be created if not exists)
+ *   - Packages: npm install mongoose dotenv
+ * 
+ * This script will:
+ *   - Connect to MongoDB
+ *   - Clear existing data (optional)
+ *   - Import all collections from the embedded data
+ * 
+ * To keep existing data, run: KEEP_DATA=true node standalone-import-complete.js
+ * 
+ * =============================================
+ */
+
+const mongoose = require('mongoose');
+
+// =============================================
+// CONFIGURATION
+// =============================================
+
+// MongoDB connection - Change this if your MongoDB is not on localhost
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/english-app';
+
+// Collections to import (in dependency order)
+const COLLECTIONS_ORDER = [
+  'levels',
+  'topics', 
+  'badges',
+  'ranks',
+  'users',
+  'lessons',
+  'videos',
+  'vocabs',
+  'quizzes',
+  'quizquestions',
+  'notifications',
+  'activities',
+  'userprogresses',
+  'lessonresults',
+  'quizresults',
+  'translations',
+  'translationhistories',
+  'conversationhistories'
+];
+
+// =============================================
+// EMBEDDED DATABASE DATA
+// =============================================
+const exportData = {
+  "metadata": {
+    "exportDate": "2025-10-28T08:26:53.589Z",
+    "database": "english-app",
+    "collections": [
+      "levels",
+      "topics",
+      "badges",
+      "ranks",
+      "users",
+      "lessons",
+      "videos",
+      "vocabs",
+      "quizzes",
+      "quizquestions",
+      "notifications",
+      "activities",
+      "userprogresses",
+      "lessonresults",
+      "quizresults",
+      "translations",
+      "translationhistories",
+      "conversationhistories"
+    ],
+    "version": "1.0.0"
+  },
+  "data": {
+    "levels": [],
+    "topics": [],
+    "badges": [
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              164
+            ]
+          }
+        },
+        "name": "First Steps",
+        "icon": "👶",
+        "users": [],
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              165
+            ]
+          }
+        },
+        "name": "Vocabulary Master",
+        "icon": "📚",
+        "users": [],
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              166
+            ]
+          }
+        },
+        "name": "Quiz Champion",
+        "icon": "🏆",
+        "users": [],
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              167
+            ]
+          }
+        },
+        "name": "Video Watcher",
+        "icon": "📺",
+        "users": [],
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              168
+            ]
+          }
+        },
+        "name": "Rookie",
+        "icon": "🥉",
+        "users": [],
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              169
+            ]
+          }
+        },
+        "name": "Master",
+        "icon": "🥇",
+        "users": [],
+        "__v": 0
+      }
+    ],
+    "ranks": [
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              5,
+              171
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "points": 50,
+        "level": 1,
+        "completedLessons": 2,
+        "updatedAt": "2025-10-23T17:12:12.268Z",
+        "__v": 0
+      }
+    ],
+    "users": [
+      {
+        "_id": "68fce1a0f42493015254d303",
+        "email": "admin@example.com",
+        "passwordHash": "$2a$10$WBSye3L3n/ZqUble3Cep5.TgUFd4zx2yiBAhB0fNMSUReVyeEilw2",
+        "nickname": "Admin",
+        "role": "ADMIN",
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.014Z",
+        "updatedAt": "2025-10-25T14:41:36.014Z",
+        "lastLogin": "2025-10-28T06:10:14.049Z"
+      },
+      {
+        "_id": "68fce2a63ce5ca203f96c15b",
+        "email": "teacher@example.com",
+        "passwordHash": "$2a$10$blPzD/4I2Kn/muWxMMFDzOUzvltMpHvzX4qe4wZHnwCiJtlNI3oJW",
+        "nickname": "Teacher",
+        "role": "TEACHER",
+        "isActive": true,
+        "createdAt": "2025-10-25T14:45:58.244Z",
+        "updatedAt": "2025-10-25T14:45:58.244Z",
+        "lastLogin": "2025-10-28T06:09:27.122Z"
+      },
+      {
+        "_id": "68ffc8daa605f89c4f194c10",
+        "email": "student@example.com",
+        "passwordHash": "$2a$10$tGUqGTQhW0JwgkqGahRlp.pXbH.jOs4vCjZTEeeKUqj9jsTsGBTGi",
+        "role": "STUDENT",
+        "nickname": "Student",
+        "createdAt": "2025-10-27T19:32:42.334Z",
+        "__v": 0,
+        "lastLogin": "2025-10-27T20:06:22.461Z"
+      }
+    ],
+    "lessons": [
+      {
+        "_id": "68fce1a0f42493015254d304",
+        "title": "Basic Greetings",
+        "description": "Learn how to greet people in English",
+        "level": 1,
+        "order": 1,
+        "isPublished": true,
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.022Z",
+        "updatedAt": "2025-10-27T19:33:52.828Z",
+        "isCompleted": false,
+        "isUnlocked": true,
+        "requiredScore": 80,
+        "unlockNextLesson": true
+      },
+      {
+        "_id": "68fce1a0f42493015254d305",
+        "title": "Daily Routine",
+        "description": "Learn vocabulary and phrases about daily activities",
+        "level": 1,
+        "order": 2,
+        "isPublished": true,
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.022Z",
+        "updatedAt": "2025-10-26T04:20:09.250Z",
+        "isCompleted": false,
+        "isUnlocked": true,
+        "requiredScore": 80,
+        "unlockNextLesson": true
+      },
+      {
+        "_id": "68fce1a0f42493015254d307",
+        "title": "Food and Drinks",
+        "description": "Learn vocabulary about food and beverages",
+        "level": 2,
+        "order": 4,
+        "isPublished": true,
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.022Z",
+        "updatedAt": "2025-10-26T03:34:00.078Z",
+        "isCompleted": false,
+        "isUnlocked": true,
+        "requiredScore": 80,
+        "unlockNextLesson": true
+      },
+      {
+        "_id": "68fce1a0f42493015254d308",
+        "title": "Travel and Transportation",
+        "description": "Learn about traveling and different modes of transport",
+        "level": 3,
+        "order": 5,
+        "isPublished": true,
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.022Z",
+        "updatedAt": "2025-10-25T14:41:36.022Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b79",
+        "title": "First Time to Meet",
+        "description": "Learn first time to meet through interactive video lessons.",
+        "level": 1,
+        "order": 1,
+        "isUnlocked": true,
+        "isPublished": true,
+        "components": {
+          "reading": {
+            "content": "Alex. Hey. Hey. This is my friend Bob. He's from England. Oh, hey. Um, excuse me, okay? Sit down, please. What city in England do you come from? I come from London. Have you ever been there? No, I've never been. I hope to go someday. You can, if you have true desire. Have you been here a long time? I've been here for about seven years. How about you? Oh, I've been here all my life. Why have you stayed here such a long time? I've stayed here for many reasons. Stated for many reasons. Are you married? Yes, I am. Is your wife beautiful? Would you like to see a picture of my wife? That would be nice. Oh, she's very lovely. Is she from around here? Thank you. Yes, she is from here. Do you have any children? No, no children yet, but certainly in the future. Where do you work? I work at the newspaper. Wow, the newspaper. What do you do there? I am a reporter.",
+            "highlightedWords": [],
+            "contextualTranslationEnabled": true,
+            "manualTranslationEnabled": true
+          },
+          "listening": {
+            "audioUrl": "https://www.youtube.com/watch?v=example1",
+            "exerciseType": "dialogue_understanding",
+            "questions": []
+          },
+          "quiz": {
+            "questions": [
+              {
+                "type": "multiple_choice",
+                "question": "Where is Bob from?",
+                "context": "Introduction conversation",
+                "options": [
+                  "London",
+                  "New York",
+                  "Paris",
+                  "Tokyo"
+                ],
+                "correctAnswer": "London",
+                "explanation": "Bob says \"I come from London\".",
+                "difficulty": "easy"
+              },
+              {
+                "type": "fill_in_blank",
+                "question": "Complete: \"I am a _____.\"",
+                "context": "Job description",
+                "correctAnswer": "reporter",
+                "explanation": "Bob works as a reporter at the newspaper.",
+                "difficulty": "medium"
+              },
+              {
+                "type": "multiple_choice",
+                "question": "How long has Bob been here?",
+                "context": "Duration of stay",
+                "options": [
+                  "Seven years",
+                  "Five years",
+                  "Ten years",
+                  "Three years"
+                ],
+                "correctAnswer": "Seven years",
+                "explanation": "Bob mentions \"I've been here for about seven years\".",
+                "difficulty": "easy"
+              },
+              {
+                "type": "multiple_choice",
+                "question": "Is Bob married?",
+                "context": "Personal information",
+                "options": [
+                  "Yes",
+                  "No",
+                  "Not mentioned",
+                  "Divorced"
+                ],
+                "correctAnswer": "Yes",
+                "explanation": "Bob answers \"Yes, I am\" when asked if he is married.",
+                "difficulty": "easy"
+              },
+              {
+                "type": "fill_in_blank",
+                "question": "Complete: \"She is very _____.\"",
+                "context": "Describing appearance",
+                "correctAnswer": "lovely",
+                "explanation": "The speaker describes Bob's wife as \"very lovely\".",
+                "difficulty": "medium"
+              }
+            ],
+            "passingScore": 80,
+            "timeLimit": 10
+          }
+        },
+        "requiredScore": 80,
+        "unlockNextLesson": true,
+        "createdAt": "2025-10-26T12:10:18.927Z",
+        "updatedAt": "2025-10-26T12:10:18.927Z"
+      }
+    ],
+    "videos": [
+      {
+        "_id": "68fce1a0f42493015254d309",
+        "title": "Basic Greetings - Part 1",
+        "description": "Learn basic greeting phrases",
+        "lesson": "68fce1a0f42493015254d304",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 180,
+        "order": 1,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d30a",
+        "title": "Basic Greetings - Part 2",
+        "description": "Practice greeting conversations",
+        "lesson": "68fce1a0f42493015254d304",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 200,
+        "order": 2,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d30b",
+        "title": "Daily Routine - Morning",
+        "description": "Learn morning routine vocabulary",
+        "lesson": "68fce1a0f42493015254d305",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 220,
+        "order": 1,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-26T12:10:18.896Z",
+        "subtitles": [
+          {
+            "id": 0,
+            "start": 0,
+            "duration": 11.52,
+            "text": "Paul, you're late again.",
+            "words": []
+          },
+          {
+            "id": 1,
+            "start": 11.52,
+            "duration": 1,
+            "text": "Sorry.",
+            "words": []
+          },
+          {
+            "id": 2,
+            "start": 12.52,
+            "duration": 1,
+            "text": "I never get up before 8.45.",
+            "words": []
+          },
+          {
+            "id": 3,
+            "start": 13.52,
+            "duration": 1,
+            "text": "8.45?",
+            "words": []
+          },
+          {
+            "id": 4,
+            "start": 14.52,
+            "duration": 1,
+            "text": "That's late.",
+            "words": []
+          },
+          {
+            "id": 5,
+            "start": 15.52,
+            "duration": 2,
+            "text": "What time do you get up?",
+            "words": []
+          },
+          {
+            "id": 6,
+            "start": 17.52,
+            "duration": 1,
+            "text": "5 a.m.",
+            "words": []
+          },
+          {
+            "id": 7,
+            "start": 18.52,
+            "duration": 1,
+            "text": "5 a.m.?",
+            "words": []
+          },
+          {
+            "id": 8,
+            "start": 19.52,
+            "duration": 1,
+            "text": "That's early!",
+            "words": []
+          },
+          {
+            "id": 9,
+            "start": 20.52,
+            "duration": 2.48,
+            "text": "What do you do in the morning?",
+            "words": []
+          },
+          {
+            "id": 10,
+            "start": 23,
+            "duration": 6.96,
+            "text": "Well, after I get up, I usually make breakfast, take out the garbage, do the laundry, do",
+            "words": []
+          },
+          {
+            "id": 11,
+            "start": 29.96,
+            "duration": 1.16,
+            "text": "the laundry.",
+            "words": []
+          },
+          {
+            "id": 12,
+            "start": 31.12,
+            "duration": 1,
+            "text": "The laundry?",
+            "words": []
+          },
+          {
+            "id": 13,
+            "start": 32.12,
+            "duration": 1,
+            "text": "Yes.",
+            "words": []
+          },
+          {
+            "id": 14,
+            "start": 33.12,
+            "duration": 4.56,
+            "text": "Then I read the newspaper, check my e-mail, sometimes I take a nap.",
+            "words": []
+          },
+          {
+            "id": 15,
+            "start": 37.68,
+            "duration": 1.72,
+            "text": "You take a nap in the morning.",
+            "words": []
+          },
+          {
+            "id": 16,
+            "start": 39.4,
+            "duration": 2,
+            "text": "Just 15 minutes.",
+            "words": []
+          },
+          {
+            "id": 17,
+            "start": 41.4,
+            "duration": 6.16,
+            "text": "On Monday, Wednesday and Friday, I exercise, and on the other days I clean the house.",
+            "words": []
+          },
+          {
+            "id": 18,
+            "start": 47.56,
+            "duration": 4.96,
+            "text": "Then I take a shower, get dressed, put on my makeup, and go to work.",
+            "words": []
+          },
+          {
+            "id": 19,
+            "start": 52.52,
+            "duration": 1.2,
+            "text": "Wow.",
+            "words": []
+          },
+          {
+            "id": 20,
+            "start": 53.72,
+            "duration": 1.72,
+            "text": "You never sleep late.",
+            "words": []
+          },
+          {
+            "id": 21,
+            "start": 55.44,
+            "duration": 2.56,
+            "text": "On the weekends, I sleep till 6.",
+            "words": []
+          },
+          {
+            "id": 22,
+            "start": 58,
+            "duration": 1.8,
+            "text": "That's real.",
+            "words": []
+          },
+          {
+            "id": 23,
+            "start": 59.8,
+            "duration": 2.28,
+            "text": "You do laundry in the morning.",
+            "words": []
+          },
+          {
+            "id": 24,
+            "start": 62.08,
+            "duration": 1,
+            "text": "And the evening.",
+            "words": []
+          },
+          {
+            "id": 25,
+            "start": 63.08,
+            "duration": 1,
+            "text": "Why?",
+            "words": []
+          },
+          {
+            "id": 26,
+            "start": 64.08,
+            "duration": 2.2,
+            "text": "When do you do the laundry?",
+            "words": []
+          },
+          {
+            "id": 27,
+            "start": 66.28,
+            "duration": 2.8,
+            "text": "Usually in March and September.",
+            "words": []
+          }
+        ],
+        "wordDefinitions": [
+          {
+            "word": "routine",
+            "pronunciation": {
+              "us": "/ruːˈtiːn/",
+              "uk": "/ruːˈtiːn/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Thói quen, công việc thường ngày",
+                "example": "My daily routine includes exercise and reading.",
+                "translation": "Thói quen hàng ngày của tôi bao gồm tập thể dục và đọc sách."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "get up",
+            "pronunciation": {
+              "us": "/ɡet ʌp/",
+              "uk": "/ɡet ʌp/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "phrasal verb",
+                "meaning": "Thức dậy, dậy khỏi giường",
+                "example": "I usually get up at 7 AM.",
+                "translation": "Tôi thường dậy lúc 7 giờ sáng."
+              }
+            ],
+            "cefrLevel": "A1"
+          },
+          {
+            "word": "breakfast",
+            "pronunciation": {
+              "us": "/ˈbrekfəst/",
+              "uk": "/ˈbrekfəst/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Bữa sáng",
+                "example": "I make breakfast every morning.",
+                "translation": "Tôi làm bữa sáng mỗi buổi sáng."
+              }
+            ],
+            "cefrLevel": "A1"
+          },
+          {
+            "word": "garbage",
+            "pronunciation": {
+              "us": "/ˈɡɑːrbɪdʒ/",
+              "uk": "/ˈɡɑːbɪdʒ/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Rác, rác thải",
+                "example": "Please take out the garbage.",
+                "translation": "Hãy đổ rác đi."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "laundry",
+            "pronunciation": {
+              "us": "/ˈlɔːndri/",
+              "uk": "/ˈlɔːndri/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Giặt giũ, quần áo cần giặt",
+                "example": "I do the laundry twice a week.",
+                "translation": "Tôi giặt quần áo hai lần một tuần."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "nap",
+            "pronunciation": {
+              "us": "/næp/",
+              "uk": "/næp/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Giấc ngủ ngắn (ban ngày)",
+                "example": "I take a nap after lunch.",
+                "translation": "Tôi ngủ trưa sau bữa trưa."
+              }
+            ],
+            "cefrLevel": "B1"
+          },
+          {
+            "word": "exercise",
+            "pronunciation": {
+              "us": "/ˈeksərsaɪz/",
+              "uk": "/ˈeksəsaɪz/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "verb",
+                "meaning": "Tập thể dục",
+                "example": "I exercise three times a week.",
+                "translation": "Tôi tập thể dục ba lần một tuần."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "shower",
+            "pronunciation": {
+              "us": "/ˈʃaʊər/",
+              "uk": "/ˈʃaʊə(r)/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Tắm vòi sen",
+                "example": "I take a shower every morning.",
+                "translation": "Tôi tắm vòi sen mỗi buổi sáng."
+              }
+            ],
+            "cefrLevel": "A1"
+          },
+          {
+            "word": "makeup",
+            "pronunciation": {
+              "us": "/ˈmeɪkʌp/",
+              "uk": "/ˈmeɪkʌp/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Trang điểm",
+                "example": "She puts on makeup before work.",
+                "translation": "Cô ấy trang điểm trước khi đi làm."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "weekends",
+            "pronunciation": {
+              "us": "/ˈwiːkendz/",
+              "uk": "/ˈwiːkendz/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Cuối tuần",
+                "example": "I relax on the weekends.",
+                "translation": "Tôi thư giãn vào cuối tuần."
+              }
+            ],
+            "cefrLevel": "A1"
+          }
+        ]
+      },
+      {
+        "_id": "68fce1a0f42493015254d30c",
+        "title": "Daily Routine - Evening",
+        "description": "Learn evening routine vocabulary",
+        "lesson": "68fce1a0f42493015254d305",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 190,
+        "order": 2,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d30d",
+        "title": "Family Members",
+        "description": "Learn family member vocabulary",
+        "lesson": "68fce1a0f42493015254d306",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 210,
+        "order": 1,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d30e",
+        "title": "Describing People",
+        "description": "Learn how to describe people",
+        "lesson": "68fce1a0f42493015254d306",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 240,
+        "order": 2,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d30f",
+        "title": "Food Vocabulary",
+        "description": "Learn food vocabulary",
+        "lesson": "68fce1a0f42493015254d307",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 200,
+        "order": 1,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d310",
+        "title": "Drinks and Beverages",
+        "description": "Learn drinks vocabulary",
+        "lesson": "68fce1a0f42493015254d307",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 180,
+        "order": 2,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d311",
+        "title": "Transportation Methods",
+        "description": "Learn different transportation methods",
+        "lesson": "68fce1a0f42493015254d308",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 250,
+        "order": 1,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d312",
+        "title": "Travel Planning",
+        "description": "Learn travel planning vocabulary",
+        "lesson": "68fce1a0f42493015254d308",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": 220,
+        "order": 2,
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.026Z",
+        "updatedAt": "2025-10-25T14:41:36.026Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b7a",
+        "title": "First Time to Meet Conversation",
+        "description": "A conversation about first time to meet",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "videoUrl": "https://www.youtube.com/watch?v=example1",
+        "thumbnailUrl": "https://img.youtube.com/vi/example1/maxresdefault.jpg",
+        "duration": 94.92,
+        "transcript": "[00:00.000 --> 00:10.520]  Alex. Hey. Hey. This is my friend Bob. He's from England.\n[00:10.520 --> 00:19.800]  Oh, hey. Um, excuse me, okay? Sit down, please.\n[00:19.800 --> 00:23.920]  What city in England do you come from? I come from London. Have you ever been there?\n[00:23.920 --> 00:31.920]  No, I've never been. I hope to go someday. You can, if you have true desire.\n[00:31.920 --> 00:37.920]  Have you been here a long time? I've been here for about seven years. How about you?\n[00:37.920 --> 00:42.920]  Oh, I've been here all my life. Why have you stayed here such a long time?\n[00:42.920 --> 00:48.920]  I've stayed here for many reasons. Stated for many reasons. Are you married?\n[00:48.920 --> 00:54.920]  Yes, I am. Is your wife beautiful? Would you like to see a picture of my wife?\n[00:54.920 --> 00:57.920]  That would be nice.\n[01:00.920 --> 01:07.920]  Oh, she's very lovely. Is she from around here?\n[01:07.920 --> 01:12.920]  Thank you. Yes, she is from here. Do you have any children?\n[01:12.920 --> 01:17.920]  No, no children yet, but certainly in the future. Where do you work?\n[01:17.920 --> 01:23.920]  I work at the newspaper. Wow, the newspaper. What do you do there?\n[01:23.920 --> 01:34.920]  I am a reporter.",
+        "subtitles": [
+          {
+            "id": 0,
+            "start": 0,
+            "duration": 10.52,
+            "text": "Alex. Hey. Hey. This is my friend Bob. He's from England.",
+            "words": []
+          },
+          {
+            "id": 1,
+            "start": 10.52,
+            "duration": 9.28,
+            "text": "Oh, hey. Um, excuse me, okay? Sit down, please.",
+            "words": []
+          },
+          {
+            "id": 2,
+            "start": 19.8,
+            "duration": 4.12,
+            "text": "What city in England do you come from? I come from London. Have you ever been there?",
+            "words": []
+          },
+          {
+            "id": 3,
+            "start": 23.92,
+            "duration": 8,
+            "text": "No, I've never been. I hope to go someday. You can, if you have true desire.",
+            "words": []
+          },
+          {
+            "id": 4,
+            "start": 31.92,
+            "duration": 6,
+            "text": "Have you been here a long time? I've been here for about seven years. How about you?",
+            "words": []
+          },
+          {
+            "id": 5,
+            "start": 37.92,
+            "duration": 5,
+            "text": "Oh, I've been here all my life. Why have you stayed here such a long time?",
+            "words": []
+          },
+          {
+            "id": 6,
+            "start": 42.92,
+            "duration": 6,
+            "text": "I've stayed here for many reasons. Stated for many reasons. Are you married?",
+            "words": []
+          },
+          {
+            "id": 7,
+            "start": 48.92,
+            "duration": 6,
+            "text": "Yes, I am. Is your wife beautiful? Would you like to see a picture of my wife?",
+            "words": []
+          },
+          {
+            "id": 8,
+            "start": 54.92,
+            "duration": 3,
+            "text": "That would be nice.",
+            "words": []
+          },
+          {
+            "id": 9,
+            "start": 60.92,
+            "duration": 7,
+            "text": "Oh, she's very lovely. Is she from around here?",
+            "words": []
+          },
+          {
+            "id": 10,
+            "start": 67.92,
+            "duration": 5,
+            "text": "Thank you. Yes, she is from here. Do you have any children?",
+            "words": []
+          },
+          {
+            "id": 11,
+            "start": 72.92,
+            "duration": 5,
+            "text": "No, no children yet, but certainly in the future. Where do you work?",
+            "words": []
+          },
+          {
+            "id": 12,
+            "start": 77.92,
+            "duration": 6,
+            "text": "I work at the newspaper. Wow, the newspaper. What do you do there?",
+            "words": []
+          },
+          {
+            "id": 13,
+            "start": 83.92,
+            "duration": 11,
+            "text": "I am a reporter.",
+            "words": []
+          }
+        ],
+        "wordDefinitions": [
+          {
+            "word": "introduce",
+            "pronunciation": {
+              "us": "/ˌɪntrəˈduːs/",
+              "uk": "/ˌɪntrəˈdjuːs/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "verb",
+                "meaning": "Giới thiệu",
+                "example": "Let me introduce my friend.",
+                "translation": "Để tôi giới thiệu bạn tôi."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "married",
+            "pronunciation": {
+              "us": "/ˈmærid/",
+              "uk": "/ˈmærid/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "adjective",
+                "meaning": "Đã kết hôn",
+                "example": "Are you married?",
+                "translation": "Bạn đã kết hôn chưa?"
+              }
+            ],
+            "cefrLevel": "A1"
+          },
+          {
+            "word": "reporter",
+            "pronunciation": {
+              "us": "/rɪˈpɔːrtər/",
+              "uk": "/rɪˈpɔːtə(r)/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Phóng viên, nhà báo",
+                "example": "I am a reporter.",
+                "translation": "Tôi là phóng viên."
+              }
+            ],
+            "cefrLevel": "A2"
+          },
+          {
+            "word": "newspaper",
+            "pronunciation": {
+              "us": "/ˈnuːzpeɪpər/",
+              "uk": "/ˈnjuːzpeɪpə(r)/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Báo giấy",
+                "example": "I work at the newspaper.",
+                "translation": "Tôi làm ở tòa báo."
+              }
+            ],
+            "cefrLevel": "A1"
+          },
+          {
+            "word": "desire",
+            "pronunciation": {
+              "us": "/dɪˈzaɪər/",
+              "uk": "/dɪˈzaɪə(r)/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "noun",
+                "meaning": "Mong muốn, khát khao",
+                "example": "If you have true desire, you can achieve it.",
+                "translation": "Nếu bạn có khát khao thật sự, bạn có thể đạt được."
+              }
+            ],
+            "cefrLevel": "B1"
+          },
+          {
+            "word": "lovely",
+            "pronunciation": {
+              "us": "/ˈlʌvli/",
+              "uk": "/ˈlʌvli/"
+            },
+            "definitions": [
+              {
+                "partOfSpeech": "adjective",
+                "meaning": "Đáng yêu, xinh đẹp",
+                "example": "She is very lovely.",
+                "translation": "Cô ấy rất đáng yêu."
+              }
+            ],
+            "cefrLevel": "A2"
+          }
+        ],
+        "isActive": true,
+        "order": 1,
+        "createdAt": "2025-10-26T12:10:18.930Z",
+        "updatedAt": "2025-10-26T12:10:18.930Z"
+      }
+    ],
+    "vocabs": [
+      {
+        "_id": "68fce1a0f42493015254d313",
+        "word": "Hello",
+        "meaning": "Xin chào",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d314",
+        "word": "Hi",
+        "meaning": "Chào",
+        "partOfSpeech": "interjection",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d315",
+        "word": "Good morning",
+        "meaning": "Chào buổi sáng",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d316",
+        "word": "Good afternoon",
+        "meaning": "Chào buổi chiều",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d317",
+        "word": "Good evening",
+        "meaning": "Chào buổi tối",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d318",
+        "word": "Goodbye",
+        "meaning": "Tạm biệt",
+        "partOfSpeech": "interjection",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d319",
+        "word": "See you later",
+        "meaning": "Hẹn gặp lại",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d31a",
+        "word": "Nice to meet you",
+        "meaning": "Rất vui được gặp bạn",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d31b",
+        "word": "How are you?",
+        "meaning": "Bạn khỏe không?",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d31c",
+        "word": "Fine, thank you",
+        "meaning": "Tôi khỏe, cảm ơn",
+        "partOfSpeech": "phrase",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d304",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d31d",
+        "word": "Wake up",
+        "meaning": "Thức dậy",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d31e",
+        "word": "Get up",
+        "meaning": "Dậy",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d31f",
+        "word": "Brush teeth",
+        "meaning": "Đánh răng",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d320",
+        "word": "Take a shower",
+        "meaning": "Tắm",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d321",
+        "word": "Have breakfast",
+        "meaning": "Ăn sáng",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d322",
+        "word": "Go to work",
+        "meaning": "Đi làm",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d323",
+        "word": "Have lunch",
+        "meaning": "Ăn trưa",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d324",
+        "word": "Go home",
+        "meaning": "Về nhà",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d325",
+        "word": "Have dinner",
+        "meaning": "Ăn tối",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d326",
+        "word": "Go to bed",
+        "meaning": "Đi ngủ",
+        "partOfSpeech": "verb",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d305",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d331",
+        "word": "Rice",
+        "meaning": "Cơm",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d332",
+        "word": "Bread",
+        "meaning": "Bánh mì",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d333",
+        "word": "Meat",
+        "meaning": "Thịt",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d334",
+        "word": "Fish",
+        "meaning": "Cá",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d335",
+        "word": "Vegetables",
+        "meaning": "Rau củ",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d336",
+        "word": "Fruit",
+        "meaning": "Trái cây",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d337",
+        "word": "Water",
+        "meaning": "Nước",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d338",
+        "word": "Coffee",
+        "meaning": "Cà phê",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d339",
+        "word": "Tea",
+        "meaning": "Trà",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T19:52:36.874Z",
+        "antonyms": [],
+        "example": "",
+        "exampleTranslation": "",
+        "imageUrl": "",
+        "phonetic": "/Tea/",
+        "pronunciationUK": "",
+        "pronunciationUS": "",
+        "stress": "Tea (1st syllable)",
+        "synonyms": []
+      },
+      {
+        "_id": "68fce1a0f42493015254d33a",
+        "word": "Milk",
+        "meaning": "Sữa",
+        "partOfSpeech": "noun",
+        "level": "A1",
+        "lesson": "68fce1a0f42493015254d307",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d33b",
+        "word": "Car",
+        "meaning": "Xe hơi",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d33c",
+        "word": "Bus",
+        "meaning": "Xe buýt",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d33d",
+        "word": "Train",
+        "meaning": "Tàu hỏa",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d33e",
+        "word": "Plane",
+        "meaning": "Máy bay",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d33f",
+        "word": "Bicycle",
+        "meaning": "Xe đạp",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d340",
+        "word": "Motorcycle",
+        "meaning": "Xe máy",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d341",
+        "word": "Taxi",
+        "meaning": "Taxi",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d342",
+        "word": "Hotel",
+        "meaning": "Khách sạn",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d343",
+        "word": "Passport",
+        "meaning": "Hộ chiếu",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d344",
+        "word": "Ticket",
+        "meaning": "Vé",
+        "partOfSpeech": "noun",
+        "level": "A2",
+        "lesson": "68fce1a0f42493015254d308",
+        "isActive": true,
+        "createdBy": "68fce1a0f42493015254d303",
+        "createdAt": "2025-10-25T14:41:36.028Z",
+        "updatedAt": "2025-10-25T14:41:36.028Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b6e",
+        "word": "routine",
+        "meaning": "Thói quen, công việc thường ngày",
+        "phonetic": "/ruːˈtiːn/",
+        "pronunciationUS": "/ruːˈtiːn/",
+        "pronunciationUK": "/ruːˈtiːn/",
+        "partOfSpeech": "noun",
+        "example": "My daily routine includes exercise and reading.",
+        "exampleTranslation": "Thói quen hàng ngày của tôi bao gồm tập thể dục và đọc sách.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.900Z",
+        "updatedAt": "2025-10-26T12:10:18.900Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b6f",
+        "word": "get up",
+        "meaning": "Thức dậy, dậy khỏi giường",
+        "phonetic": "/ɡet ʌp/",
+        "pronunciationUS": "/ɡet ʌp/",
+        "pronunciationUK": "/ɡet ʌp/",
+        "partOfSpeech": "phrasal verb",
+        "example": "I usually get up at 7 AM.",
+        "exampleTranslation": "Tôi thường dậy lúc 7 giờ sáng.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.901Z",
+        "updatedAt": "2025-10-26T12:10:18.901Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b70",
+        "word": "breakfast",
+        "meaning": "Bữa sáng",
+        "phonetic": "/ˈbrekfəst/",
+        "pronunciationUS": "/ˈbrekfəst/",
+        "pronunciationUK": "/ˈbrekfəst/",
+        "partOfSpeech": "noun",
+        "example": "I make breakfast every morning.",
+        "exampleTranslation": "Tôi làm bữa sáng mỗi buổi sáng.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.901Z",
+        "updatedAt": "2025-10-26T12:10:18.901Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b73",
+        "word": "nap",
+        "meaning": "Giấc ngủ ngắn (ban ngày)",
+        "phonetic": "/næp/",
+        "pronunciationUS": "/næp/",
+        "pronunciationUK": "/næp/",
+        "partOfSpeech": "noun",
+        "example": "I take a nap after lunch.",
+        "exampleTranslation": "Tôi ngủ trưa sau bữa trưa.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "B1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.901Z",
+        "updatedAt": "2025-10-26T12:10:18.901Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b74",
+        "word": "exercise",
+        "meaning": "Tập thể dục",
+        "phonetic": "/ˈeksərsaɪz/",
+        "pronunciationUS": "/ˈeksərsaɪz/",
+        "pronunciationUK": "/ˈeksəsaɪz/",
+        "partOfSpeech": "verb",
+        "example": "I exercise three times a week.",
+        "exampleTranslation": "Tôi tập thể dục ba lần một tuần.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.902Z",
+        "updatedAt": "2025-10-26T12:10:18.902Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b75",
+        "word": "shower",
+        "meaning": "Tắm vòi sen",
+        "phonetic": "/ˈʃaʊər/",
+        "pronunciationUS": "/ˈʃaʊər/",
+        "pronunciationUK": "/ˈʃaʊə(r)/",
+        "partOfSpeech": "noun",
+        "example": "I take a shower every morning.",
+        "exampleTranslation": "Tôi tắm vòi sen mỗi buổi sáng.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.902Z",
+        "updatedAt": "2025-10-26T12:10:18.902Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b76",
+        "word": "makeup",
+        "meaning": "Trang điểm",
+        "phonetic": "/ˈmeɪkʌp/",
+        "pronunciationUS": "/ˈmeɪkʌp/",
+        "pronunciationUK": "/ˈmeɪkʌp/",
+        "partOfSpeech": "noun",
+        "example": "She puts on makeup before work.",
+        "exampleTranslation": "Cô ấy trang điểm trước khi đi làm.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.902Z",
+        "updatedAt": "2025-10-26T12:10:18.902Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b77",
+        "word": "weekends",
+        "meaning": "Cuối tuần",
+        "phonetic": "/ˈwiːkendz/",
+        "pronunciationUS": "/ˈwiːkendz/",
+        "pronunciationUK": "/ˈwiːkendz/",
+        "partOfSpeech": "noun",
+        "example": "I relax on the weekends.",
+        "exampleTranslation": "Tôi thư giãn vào cuối tuần.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.902Z",
+        "updatedAt": "2025-10-26T12:10:18.902Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b71",
+        "word": "garbage",
+        "meaning": "Rác, rác thải",
+        "phonetic": "/ˈɡɑːrbɪdʒ/",
+        "pronunciationUS": "/ˈɡɑːrbɪdʒ/",
+        "pronunciationUK": "/ˈɡɑːbɪdʒ/",
+        "partOfSpeech": "noun",
+        "example": "Please take out the garbage.",
+        "exampleTranslation": "Hãy đổ rác đi.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.901Z",
+        "updatedAt": "2025-10-26T12:10:18.901Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b72",
+        "word": "laundry",
+        "meaning": "Giặt giũ, quần áo cần giặt",
+        "phonetic": "/ˈlɔːndri/",
+        "pronunciationUS": "/ˈlɔːndri/",
+        "pronunciationUK": "/ˈlɔːndri/",
+        "partOfSpeech": "noun",
+        "example": "I do the laundry twice a week.",
+        "exampleTranslation": "Tôi giặt quần áo hai lần một tuần.",
+        "lesson": "68fce1a0f42493015254d305",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.901Z",
+        "updatedAt": "2025-10-26T12:10:18.901Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b7b",
+        "word": "introduce",
+        "meaning": "Giới thiệu",
+        "phonetic": "/ˌɪntrəˈduːs/",
+        "pronunciationUS": "/ˌɪntrəˈduːs/",
+        "pronunciationUK": "/ˌɪntrəˈdjuːs/",
+        "partOfSpeech": "verb",
+        "example": "Let me introduce my friend.",
+        "exampleTranslation": "Để tôi giới thiệu bạn tôi.",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.931Z",
+        "updatedAt": "2025-10-26T12:10:18.931Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b7c",
+        "word": "married",
+        "meaning": "Đã kết hôn",
+        "phonetic": "/ˈmærid/",
+        "pronunciationUS": "/ˈmærid/",
+        "pronunciationUK": "/ˈmærid/",
+        "partOfSpeech": "adjective",
+        "example": "Are you married?",
+        "exampleTranslation": "Bạn đã kết hôn chưa?",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "level": "A1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.931Z",
+        "updatedAt": "2025-10-26T12:10:18.931Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b7d",
+        "word": "reporter",
+        "meaning": "Phóng viên, nhà báo",
+        "phonetic": "/rɪˈpɔːrtər/",
+        "pronunciationUS": "/rɪˈpɔːrtər/",
+        "pronunciationUK": "/rɪˈpɔːtə(r)/",
+        "partOfSpeech": "noun",
+        "example": "I am a reporter.",
+        "exampleTranslation": "Tôi là phóng viên.",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.931Z",
+        "updatedAt": "2025-10-26T12:10:18.931Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b7e",
+        "word": "newspaper",
+        "meaning": "Báo giấy",
+        "phonetic": "/ˈnuːzpeɪpər/",
+        "pronunciationUS": "/ˈnuːzpeɪpər/",
+        "pronunciationUK": "/ˈnjuːzpeɪpə(r)/",
+        "partOfSpeech": "noun",
+        "example": "I work at the newspaper.",
+        "exampleTranslation": "Tôi làm ở tòa báo.",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "level": "A1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.931Z",
+        "updatedAt": "2025-10-26T12:10:18.931Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b7f",
+        "word": "desire",
+        "meaning": "Mong muốn, khát khao",
+        "phonetic": "/dɪˈzaɪər/",
+        "pronunciationUS": "/dɪˈzaɪər/",
+        "pronunciationUK": "/dɪˈzaɪə(r)/",
+        "partOfSpeech": "noun",
+        "example": "If you have true desire, you can achieve it.",
+        "exampleTranslation": "Nếu bạn có khát khao thật sự, bạn có thể đạt được.",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "level": "B1",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.931Z",
+        "updatedAt": "2025-10-26T12:10:18.931Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b80",
+        "word": "lovely",
+        "meaning": "Đáng yêu, xinh đẹp",
+        "phonetic": "/ˈlʌvli/",
+        "pronunciationUS": "/ˈlʌvli/",
+        "pronunciationUK": "/ˈlʌvli/",
+        "partOfSpeech": "adjective",
+        "example": "She is very lovely.",
+        "exampleTranslation": "Cô ấy rất đáng yêu.",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "level": "A2",
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.932Z",
+        "updatedAt": "2025-10-26T12:10:18.932Z"
+      }
+    ],
+    "quizzes": [
+      {
+        "_id": "68fce1a0f42493015254d345",
+        "lesson": "68fce1a0f42493015254d304",
+        "question": "How do you say \"Hello\" in English?",
+        "type": "multiple_choice",
+        "options": [
+          "Hi",
+          "Goodbye",
+          "Thank you",
+          "Please"
+        ],
+        "correctAnswer": "Hi",
+        "explanation": "Both \"Hello\" and \"Hi\" are common greetings in English.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d346",
+        "lesson": "68fce1a0f42493015254d304",
+        "question": "What does \"Good morning\" mean?",
+        "type": "multiple_choice",
+        "options": [
+          "Chào buổi sáng",
+          "Chào buổi chiều",
+          "Chào buổi tối",
+          "Tạm biệt"
+        ],
+        "correctAnswer": "Chào buổi sáng",
+        "explanation": "\"Good morning\" is used to greet someone in the morning.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d347",
+        "lesson": "68fce1a0f42493015254d304",
+        "question": "Complete: \"Nice to ___ you\"",
+        "type": "fill_blank",
+        "options": [],
+        "correctAnswer": "meet",
+        "explanation": "The correct phrase is \"Nice to meet you\".",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d348",
+        "lesson": "68fce1a0f42493015254d304",
+        "question": "Is \"Goodbye\" used when leaving?",
+        "type": "true_false",
+        "options": [],
+        "correctAnswer": "true",
+        "explanation": "Yes, \"Goodbye\" is used when saying farewell.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d349",
+        "lesson": "68fce1a0f42493015254d304",
+        "question": "Match the greetings:",
+        "type": "matching",
+        "options": [],
+        "correctAnswer": "Hello-Xin chào,Good morning-Chào buổi sáng,Goodbye-Tạm biệt",
+        "explanation": "These are the correct translations.",
+        "pairs": [
+          {
+            "left": "Hello",
+            "right": "Xin chào"
+          },
+          {
+            "left": "Good morning",
+            "right": "Chào buổi sáng"
+          },
+          {
+            "left": "Goodbye",
+            "right": "Tạm biệt"
+          }
+        ],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d34a",
+        "lesson": "68fce1a0f42493015254d305",
+        "question": "What do you do first in the morning?",
+        "type": "multiple_choice",
+        "options": [
+          "Wake up",
+          "Go to bed",
+          "Have dinner",
+          "Go to work"
+        ],
+        "correctAnswer": "Wake up",
+        "explanation": "The first thing you do in the morning is wake up.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d34b",
+        "lesson": "68fce1a0f42493015254d305",
+        "question": "Complete: \"I ___ my teeth every morning\"",
+        "type": "fill_blank",
+        "options": [],
+        "correctAnswer": "brush",
+        "explanation": "The correct verb is \"brush\" - \"I brush my teeth\".",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d34c",
+        "lesson": "68fce1a0f42493015254d305",
+        "question": "Is \"take a shower\" a morning activity?",
+        "type": "true_false",
+        "options": [],
+        "correctAnswer": "true",
+        "explanation": "Yes, taking a shower is typically a morning routine activity.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d34d",
+        "lesson": "68fce1a0f42493015254d305",
+        "question": "What meal do you have in the morning?",
+        "type": "multiple_choice",
+        "options": [
+          "Lunch",
+          "Dinner",
+          "Breakfast",
+          "Snack"
+        ],
+        "correctAnswer": "Breakfast",
+        "explanation": "Breakfast is the meal you have in the morning.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d34e",
+        "lesson": "68fce1a0f42493015254d305",
+        "question": "Match the activities:",
+        "type": "matching",
+        "options": [],
+        "correctAnswer": "Wake up-Thức dậy,Brush teeth-Đánh răng,Have breakfast-Ăn sáng",
+        "explanation": "These are the correct translations for daily activities.",
+        "pairs": [
+          {
+            "left": "Wake up",
+            "right": "Thức dậy"
+          },
+          {
+            "left": "Brush teeth",
+            "right": "Đánh răng"
+          },
+          {
+            "left": "Have breakfast",
+            "right": "Ăn sáng"
+          }
+        ],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d34f",
+        "lesson": "68fce1a0f42493015254d306",
+        "question": "Who is your father's brother?",
+        "type": "multiple_choice",
+        "options": [
+          "Uncle",
+          "Cousin",
+          "Grandfather",
+          "Brother"
+        ],
+        "correctAnswer": "Uncle",
+        "explanation": "Your father's brother is your uncle.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d350",
+        "lesson": "68fce1a0f42493015254d306",
+        "question": "Complete: \"My mother's mother is my ___\"",
+        "type": "fill_blank",
+        "options": [],
+        "correctAnswer": "grandmother",
+        "explanation": "Your mother's mother is your grandmother.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d351",
+        "lesson": "68fce1a0f42493015254d306",
+        "question": "Is \"cousin\" a family member?",
+        "type": "true_false",
+        "options": [],
+        "correctAnswer": "true",
+        "explanation": "Yes, a cousin is a family member.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d352",
+        "lesson": "68fce1a0f42493015254d306",
+        "question": "What do you call your father's father?",
+        "type": "multiple_choice",
+        "options": [
+          "Uncle",
+          "Grandfather",
+          "Cousin",
+          "Brother"
+        ],
+        "correctAnswer": "Grandfather",
+        "explanation": "Your father's father is your grandfather.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d353",
+        "lesson": "68fce1a0f42493015254d306",
+        "question": "Match the family members:",
+        "type": "matching",
+        "options": [],
+        "correctAnswer": "Father-Cha,Mother-Mẹ,Brother-Anh/em trai",
+        "explanation": "These are the correct translations for family members.",
+        "pairs": [
+          {
+            "left": "Father",
+            "right": "Cha"
+          },
+          {
+            "left": "Mother",
+            "right": "Mẹ"
+          },
+          {
+            "left": "Brother",
+            "right": "Anh/em trai"
+          }
+        ],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d354",
+        "lesson": "68fce1a0f42493015254d307",
+        "question": "What is the main food in Vietnam?",
+        "type": "multiple_choice",
+        "options": [
+          "Bread",
+          "Rice",
+          "Meat",
+          "Fish"
+        ],
+        "correctAnswer": "Rice",
+        "explanation": "Rice is the main staple food in Vietnam.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d355",
+        "lesson": "68fce1a0f42493015254d307",
+        "question": "Complete: \"I drink ___ every morning\"",
+        "type": "fill_blank",
+        "options": [],
+        "correctAnswer": "coffee",
+        "explanation": "Many people drink coffee in the morning.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d356",
+        "lesson": "68fce1a0f42493015254d307",
+        "question": "Is \"vegetables\" healthy food?",
+        "type": "true_false",
+        "options": [],
+        "correctAnswer": "true",
+        "explanation": "Yes, vegetables are generally considered healthy food.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d357",
+        "lesson": "68fce1a0f42493015254d307",
+        "question": "What do you call liquid that comes from cows?",
+        "type": "multiple_choice",
+        "options": [
+          "Water",
+          "Coffee",
+          "Tea",
+          "Milk"
+        ],
+        "correctAnswer": "Milk",
+        "explanation": "Milk is the liquid that comes from cows.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d358",
+        "lesson": "68fce1a0f42493015254d307",
+        "question": "Match the food items:",
+        "type": "matching",
+        "options": [],
+        "correctAnswer": "Rice-Cơm,Bread-Bánh mì,Meat-Thịt",
+        "explanation": "These are the correct translations for food items.",
+        "pairs": [
+          {
+            "left": "Rice",
+            "right": "Cơm"
+          },
+          {
+            "left": "Bread",
+            "right": "Bánh mì"
+          },
+          {
+            "left": "Meat",
+            "right": "Thịt"
+          }
+        ],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d359",
+        "lesson": "68fce1a0f42493015254d308",
+        "question": "What do you use to travel long distances quickly?",
+        "type": "multiple_choice",
+        "options": [
+          "Bicycle",
+          "Car",
+          "Plane",
+          "Bus"
+        ],
+        "correctAnswer": "Plane",
+        "explanation": "A plane is used for long-distance travel quickly.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d35a",
+        "lesson": "68fce1a0f42493015254d308",
+        "question": "Complete: \"I need a ___ to board the plane\"",
+        "type": "fill_blank",
+        "options": [],
+        "correctAnswer": "ticket",
+        "explanation": "You need a ticket to board a plane.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d35b",
+        "lesson": "68fce1a0f42493015254d308",
+        "question": "Is a passport required for international travel?",
+        "type": "true_false",
+        "options": [],
+        "correctAnswer": "true",
+        "explanation": "Yes, a passport is required for international travel.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d35c",
+        "lesson": "68fce1a0f42493015254d308",
+        "question": "What do you call a place where you stay during travel?",
+        "type": "multiple_choice",
+        "options": [
+          "Airport",
+          "Hotel",
+          "Station",
+          "Terminal"
+        ],
+        "correctAnswer": "Hotel",
+        "explanation": "A hotel is where you stay during travel.",
+        "pairs": [],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fce1a0f42493015254d35d",
+        "lesson": "68fce1a0f42493015254d308",
+        "question": "Match the transportation:",
+        "type": "matching",
+        "options": [],
+        "correctAnswer": "Car-Xe hơi,Bus-Xe buýt,Train-Tàu hỏa",
+        "explanation": "These are the correct translations for transportation methods.",
+        "pairs": [
+          {
+            "left": "Car",
+            "right": "Xe hơi"
+          },
+          {
+            "left": "Bus",
+            "right": "Xe buýt"
+          },
+          {
+            "left": "Train",
+            "right": "Tàu hỏa"
+          }
+        ],
+        "isActive": true,
+        "createdAt": "2025-10-25T14:41:36.031Z",
+        "updatedAt": "2025-10-25T14:41:36.031Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b78",
+        "title": "Daily Routine Quiz",
+        "description": "Test your understanding of daily routine",
+        "lesson": "68fce1a0f42493015254d305",
+        "questions": [
+          {
+            "type": "multiple_choice",
+            "question": "What time does Paul usually get up?",
+            "context": "Based on the conversation about daily routine",
+            "options": [
+              "5 a.m.",
+              "8:45 a.m.",
+              "7 a.m.",
+              "6 a.m."
+            ],
+            "correctAnswer": "5 a.m.",
+            "explanation": "Paul says \"I never get up before 8.45\" but then mentions \"5 a.m.\" as his actual wake-up time.",
+            "difficulty": "easy"
+          },
+          {
+            "type": "fill_in_blank",
+            "question": "Complete the sentence: \"I usually make breakfast, take out the _____, do the laundry.\"",
+            "context": "Daily morning activities",
+            "correctAnswer": "garbage",
+            "explanation": "The correct word is \"garbage\" - taking out the garbage is a common morning routine.",
+            "difficulty": "medium"
+          },
+          {
+            "type": "multiple_choice",
+            "question": "On which days does Paul exercise?",
+            "context": "Paul's weekly exercise schedule",
+            "options": [
+              "Monday, Wednesday, Friday",
+              "Tuesday, Thursday, Saturday",
+              "Every day",
+              "Only weekends"
+            ],
+            "correctAnswer": "Monday, Wednesday, Friday",
+            "explanation": "Paul specifically mentions \"On Monday, Wednesday and Friday, I exercise\".",
+            "difficulty": "medium"
+          },
+          {
+            "type": "fill_in_blank",
+            "question": "Complete: \"On the weekends, I sleep till _____.\"",
+            "context": "Weekend sleeping habits",
+            "correctAnswer": "6",
+            "explanation": "Paul says \"On the weekends, I sleep till 6\" (meaning 6 a.m.).",
+            "difficulty": "easy"
+          },
+          {
+            "type": "multiple_choice",
+            "question": "What does Paul do after taking a shower?",
+            "context": "Paul's morning routine sequence",
+            "options": [
+              "Go to work immediately",
+              "Get dressed, put on makeup, then go to work",
+              "Take a nap",
+              "Read the newspaper"
+            ],
+            "correctAnswer": "Get dressed, put on makeup, then go to work",
+            "explanation": "Paul's sequence is: \"take a shower, get dressed, put on my makeup, and go to work\".",
+            "difficulty": "hard"
+          }
+        ],
+        "passingScore": 80,
+        "timeLimit": 10,
+        "maxAttempts": 3,
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.923Z",
+        "updatedAt": "2025-10-26T12:10:18.923Z"
+      },
+      {
+        "_id": "68fe0faa6a5ef7c901222b81",
+        "title": "First Time to Meet Quiz",
+        "description": "Test your understanding of first time to meet",
+        "lesson": "68fe0faa6a5ef7c901222b79",
+        "questions": [
+          {
+            "type": "multiple_choice",
+            "question": "Where is Bob from?",
+            "context": "Introduction conversation",
+            "options": [
+              "London",
+              "New York",
+              "Paris",
+              "Tokyo"
+            ],
+            "correctAnswer": "London",
+            "explanation": "Bob says \"I come from London\".",
+            "difficulty": "easy"
+          },
+          {
+            "type": "fill_in_blank",
+            "question": "Complete: \"I am a _____.\"",
+            "context": "Job description",
+            "correctAnswer": "reporter",
+            "explanation": "Bob works as a reporter at the newspaper.",
+            "difficulty": "medium"
+          },
+          {
+            "type": "multiple_choice",
+            "question": "How long has Bob been here?",
+            "context": "Duration of stay",
+            "options": [
+              "Seven years",
+              "Five years",
+              "Ten years",
+              "Three years"
+            ],
+            "correctAnswer": "Seven years",
+            "explanation": "Bob mentions \"I've been here for about seven years\".",
+            "difficulty": "easy"
+          },
+          {
+            "type": "multiple_choice",
+            "question": "Is Bob married?",
+            "context": "Personal information",
+            "options": [
+              "Yes",
+              "No",
+              "Not mentioned",
+              "Divorced"
+            ],
+            "correctAnswer": "Yes",
+            "explanation": "Bob answers \"Yes, I am\" when asked if he is married.",
+            "difficulty": "easy"
+          },
+          {
+            "type": "fill_in_blank",
+            "question": "Complete: \"She is very _____.\"",
+            "context": "Describing appearance",
+            "correctAnswer": "lovely",
+            "explanation": "The speaker describes Bob's wife as \"very lovely\".",
+            "difficulty": "medium"
+          }
+        ],
+        "passingScore": 80,
+        "timeLimit": 10,
+        "maxAttempts": 3,
+        "isActive": true,
+        "createdAt": "2025-10-26T12:10:18.937Z",
+        "updatedAt": "2025-10-27T19:31:38.002Z",
+        "correctAnswer": "true",
+        "explanation": "",
+        "question": "Nice To Meet You có phải là 1 câu khen k",
+        "type": "true_false"
+      }
+    ],
+    "quizquestions": [
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              231,
+              25,
+              109,
+              247,
+              96,
+              64,
+              234,
+              209,
+              103,
+              174,
+              198
+            ]
+          }
+        },
+        "question": "What is the most common greeting in English?",
+        "type": "MULTIPLE_CHOICE",
+        "options": "[\"Hello\",\"Goodbye\",\"Please\",\"Thank you\"]",
+        "correctAnswer": "Hello",
+        "explanation": "Hello is the most common and universal greeting in English.",
+        "points": 1,
+        "order": 1,
+        "quizId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              231,
+              25,
+              109,
+              247,
+              96,
+              64,
+              234,
+              209,
+              103,
+              174,
+              196
+            ]
+          }
+        },
+        "__v": 0,
+        "createdAt": "2025-10-09T02:09:49.600Z",
+        "updatedAt": "2025-10-09T02:09:49.600Z"
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              231,
+              25,
+              109,
+              247,
+              96,
+              64,
+              234,
+              209,
+              103,
+              174,
+              199
+            ]
+          }
+        },
+        "question": "When do we say \"Goodbye\"?",
+        "type": "MULTIPLE_CHOICE",
+        "options": "[\"When meeting someone\",\"When leaving\",\"When asking for help\",\"When thanking someone\"]",
+        "correctAnswer": "When leaving",
+        "explanation": "Goodbye is used as a farewell when parting from someone.",
+        "points": 1,
+        "order": 2,
+        "quizId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              231,
+              25,
+              109,
+              247,
+              96,
+              64,
+              234,
+              209,
+              103,
+              174,
+              196
+            ]
+          }
+        },
+        "__v": 0,
+        "createdAt": "2025-10-09T02:09:49.600Z",
+        "updatedAt": "2025-10-09T02:09:49.600Z"
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              231,
+              25,
+              109,
+              247,
+              96,
+              64,
+              234,
+              209,
+              103,
+              174,
+              200
+            ]
+          }
+        },
+        "question": "Which word shows politeness when making a request?",
+        "type": "MULTIPLE_CHOICE",
+        "options": "[\"Hello\",\"Goodbye\",\"Please\",\"Thank you\"]",
+        "correctAnswer": "Please",
+        "explanation": "Please is used to make requests more polite and respectful.",
+        "points": 1,
+        "order": 3,
+        "quizId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              231,
+              25,
+              109,
+              247,
+              96,
+              64,
+              234,
+              209,
+              103,
+              174,
+              196
+            ]
+          }
+        },
+        "__v": 0,
+        "createdAt": "2025-10-09T02:09:49.600Z",
+        "updatedAt": "2025-10-09T02:09:49.600Z"
+      }
+    ],
+    "notifications": [
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              199,
+              198,
+              24,
+              165,
+              55,
+              134,
+              211,
+              161,
+              157,
+              47
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              220,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "New lesson available!",
+        "message": "Lesson 3 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-23T06:14:30.327Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              203,
+              28,
+              24,
+              165,
+              55,
+              134,
+              211,
+              161,
+              157,
+              123
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              220,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "New lesson available!",
+        "message": "Lesson 3 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-23T06:28:44.439Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              205,
+              172,
+              24,
+              165,
+              55,
+              134,
+              211,
+              161,
+              157,
+              208
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              220,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "New lesson available!",
+        "message": "Lesson 3 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-23T06:39:40.775Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              212,
+              196,
+              72,
+              13,
+              176,
+              170,
+              248,
+              201,
+              125,
+              175
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              220,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "New lesson available!",
+        "message": "Lesson 3 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-23T07:09:56.157Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              220,
+              100,
+              248,
+              131,
+              236,
+              250,
+              53,
+              246,
+              204,
+              167
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              205,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "Test Notification",
+        "message": "This is a test notification for the correct user",
+        "isRead": true,
+        "createdAt": "2025-10-23T07:42:28.950Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              238,
+              118,
+              152,
+              36,
+              177,
+              129,
+              6,
+              79,
+              208,
+              102
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              220,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "New lesson available!",
+        "message": "Lesson 2 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-23T08:59:34.569Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              249,
+              238,
+              149,
+              152,
+              36,
+              177,
+              129,
+              6,
+              79,
+              208,
+              121
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              248,
+              158,
+              115,
+              196,
+              189,
+              62,
+              82,
+              220,
+              108,
+              24,
+              102
+            ]
+          }
+        },
+        "type": "general",
+        "title": "New lesson available!",
+        "message": "Lesson 2 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-23T09:00:05.506Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              140,
+              34,
+              72,
+              177,
+              232,
+              169,
+              170,
+              169,
+              69,
+              225
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Lesson 1 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:24:34.600Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              141,
+              221,
+              186,
+              254,
+              247,
+              53,
+              169,
+              152,
+              59,
+              103
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Lesson 1 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:31:57.837Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              142,
+              12,
+              186,
+              254,
+              247,
+              53,
+              169,
+              152,
+              59,
+              136
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Lesson 2 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:32:44.913Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              142,
+              91,
+              186,
+              254,
+              247,
+              53,
+              169,
+              152,
+              59,
+              190
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Lesson 1 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:34:03.198Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              144,
+              228,
+              20,
+              18,
+              170,
+              9,
+              50,
+              213,
+              236,
+              163
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "hehe is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:44:52.088Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              145,
+              105,
+              20,
+              18,
+              170,
+              9,
+              50,
+              213,
+              236,
+              205
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Abc is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:47:05.105Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              146,
+              132,
+              229,
+              2,
+              101,
+              161,
+              4,
+              130,
+              54,
+              112
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "ABC is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T14:51:48.339Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              200,
+              176,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              146
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "abc is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T18:42:56.706Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              200,
+              222,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              199
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "1234 is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T18:43:42.587Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              202,
+              80,
+              184,
+              113,
+              90,
+              127,
+              94,
+              109,
+              253,
+              112
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "It's time to school is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T18:49:52.792Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              202,
+              156,
+              184,
+              113,
+              90,
+              127,
+              94,
+              109,
+              253,
+              150
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "It's time to sleep is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T18:51:08.542Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              203,
+              253,
+              14,
+              49,
+              246,
+              65,
+              36,
+              180,
+              30,
+              32
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Hehe is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T18:57:01.433Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              204,
+              88,
+              14,
+              49,
+              246,
+              65,
+              36,
+              180,
+              30,
+              108
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "hehe is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T18:58:32.518Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              210,
+              6,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              171,
+              91
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Hehe is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T19:22:46.396Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              210,
+              32,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              171,
+              117
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Hoc deeeeeeeee is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T19:23:12.759Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              210,
+              32,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              171,
+              118
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              104,
+              126,
+              170,
+              138,
+              227,
+              208,
+              73,
+              156,
+              5,
+              170
+            ]
+          }
+        },
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Hoc deeeeeeeee is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-24T19:23:12.759Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce2eb4a8258ac5eaea89e",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "1 is now open.",
+        "isRead": true,
+        "createdAt": "2025-10-25T14:47:07.293Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce4674a8258ac5eaea963",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "Hehe is now open.",
+        "isRead": true,
+        "createdAt": "2025-10-25T14:53:27.385Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce5054a8258ac5eaea9b7",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "aaa is now open.",
+        "isRead": true,
+        "createdAt": "2025-10-25T14:56:05.322Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce5054a8258ac5eaea9b8",
+        "userId": "68fce4404a8258ac5eaea8e8",
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "aaa is now open.",
+        "isRead": true,
+        "createdAt": "2025-10-25T14:56:05.322Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce65b4a8258ac5eaeaa50",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "hehe is now open.",
+        "isRead": true,
+        "createdAt": "2025-10-25T15:01:47.476Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce65b4a8258ac5eaeaa51",
+        "userId": "68fce4404a8258ac5eaea8e8",
+        "type": "lesson",
+        "title": "New lesson available!",
+        "message": "hehe is now open.",
+        "isRead": false,
+        "createdAt": "2025-10-25T15:01:47.476Z",
+        "__v": 0
+      }
+    ],
+    "activities": [],
+    "userprogresses": [
+      {
+        "_id": "68fce4124a8258ac5eaea8d5",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "currentLevel": 1,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [],
+        "completedTopics": [],
+        "totalScore": 0,
+        "streak": 0,
+        "badges": [],
+        "totalStudyTime": 0,
+        "lastActiveDate": "2025-10-25T14:52:02.283Z",
+        "createdAt": "2025-10-25T14:52:02.283Z",
+        "updatedAt": "2025-10-25T14:52:02.303Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce4404a8258ac5eaea8ea",
+        "userId": "68fce4404a8258ac5eaea8e8",
+        "currentLevel": 1,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [],
+        "completedTopics": [],
+        "totalScore": 0,
+        "streak": 0,
+        "badges": [],
+        "totalStudyTime": 0,
+        "lastActiveDate": "2025-10-25T14:52:48.461Z",
+        "createdAt": "2025-10-25T14:52:48.461Z",
+        "updatedAt": "2025-10-25T14:52:48.467Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fcfa13ab1858ae8384ca27",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "totalScore": 480,
+        "totalStudyTime": 0,
+        "streak": 0,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [
+          "68fce1a0f42493015254d304",
+          "68fce1a0f42493015254d305",
+          "68fce1a0f42493015254d307",
+          "68fce1a0f42493015254d308",
+          "68fe0faa6a5ef7c901222b79"
+        ],
+        "completedTopics": [],
+        "completedTowerLevels": [],
+        "lastActiveDate": "2025-10-25T16:25:55.124Z",
+        "createdAt": "2025-10-25T16:25:55.131Z",
+        "updatedAt": "2025-10-27T19:31:45.046Z",
+        "__v": 5
+      },
+      {
+        "_id": "68fd84561e5273647130bbb1",
+        "userId": "68fd84561e5273647130bbaf",
+        "totalScore": 0,
+        "totalStudyTime": 0,
+        "streak": 0,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [],
+        "completedTopics": [],
+        "completedTowerLevels": [],
+        "lastActiveDate": "2025-10-26T02:15:50.563Z",
+        "createdAt": "2025-10-26T02:15:50.564Z",
+        "updatedAt": "2025-10-26T02:15:50.580Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fd926b55c9065a319cd1e2",
+        "userId": "68fd128ae462c78e524c33ec",
+        "totalScore": 200,
+        "totalStudyTime": 0.69,
+        "streak": 0,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [
+          "68fce1a0f42493015254d304"
+        ],
+        "completedTopics": [],
+        "completedTowerLevels": [],
+        "lastActiveDate": "2025-10-26T03:15:55.712Z",
+        "createdAt": "2025-10-26T03:15:55.722Z",
+        "updatedAt": "2025-10-26T04:20:09.252Z",
+        "__v": 3
+      },
+      {
+        "_id": "68fdcdcfe09888825c603da1",
+        "userId": "68fdcdcfe09888825c603d9f",
+        "totalScore": 0,
+        "totalStudyTime": 0,
+        "streak": 0,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [],
+        "completedTopics": [],
+        "completedTowerLevels": [],
+        "lastActiveDate": "2025-10-26T07:29:19.313Z",
+        "createdAt": "2025-10-26T07:29:19.313Z",
+        "updatedAt": "2025-10-26T07:29:19.324Z",
+        "__v": 0
+      },
+      {
+        "_id": "68ff25e4d363128eafd8761d",
+        "userId": "68fa61ec628329a838c604d6",
+        "totalScore": 0,
+        "totalStudyTime": 0,
+        "streak": 0,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [],
+        "completedTopics": [],
+        "completedTowerLevels": [],
+        "lastActiveDate": "2025-10-27T07:57:24.944Z",
+        "createdAt": "2025-10-27T07:57:24.966Z",
+        "updatedAt": "2025-10-27T07:57:25.112Z",
+        "__v": 0
+      },
+      {
+        "_id": "68ffc920a605f89c4f194c2e",
+        "userId": "68ffc8daa605f89c4f194c10",
+        "totalScore": 100,
+        "totalStudyTime": 0,
+        "streak": 0,
+        "currentLesson": "68fce1a0f42493015254d304",
+        "completedLessons": [
+          "68fce1a0f42493015254d304"
+        ],
+        "completedTopics": [],
+        "completedTowerLevels": [],
+        "lastActiveDate": "2025-10-27T19:33:52.819Z",
+        "createdAt": "2025-10-27T19:33:52.821Z",
+        "updatedAt": "2025-10-27T19:36:29.298Z",
+        "__v": 1
+      }
+    ],
+    "lessonresults": [
+      {
+        "_id": "68fda17955c9065a319cd4c0",
+        "userId": "68fd128ae462c78e524c33ec",
+        "lessonId": "68fce1a0f42493015254d304",
+        "score": 100,
+        "isPassed": true,
+        "timeSpent": 0.22,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fce1a0f42493015254d345",
+                "userAnswer": "Hi",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fda17955c9065a319cd4c1"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d346",
+                "userAnswer": "Chào buổi sáng",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fda17955c9065a319cd4c2"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d347",
+                "userAnswer": "meet",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fda17955c9065a319cd4c3"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d348",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fda17955c9065a319cd4c4"
+              }
+            ],
+            "totalTimeSpent": 13
+          }
+        },
+        "completedAt": "2025-10-26T04:20:09.241Z",
+        "createdAt": "2025-10-26T04:20:09.243Z",
+        "updatedAt": "2025-10-26T04:20:09.245Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd1c5219b922b2d9eda56",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "lessonId": "68fce1a0f42493015254d304",
+        "score": 100,
+        "isPassed": true,
+        "timeSpent": 18,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fce1a0f42493015254d345",
+                "userAnswer": "Hi",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd1c5219b922b2d9eda57"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d348",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd1c5219b922b2d9eda58"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d346",
+                "userAnswer": "Chào buổi sáng",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd1c5219b922b2d9eda59"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d347",
+                "userAnswer": "meet",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd1c5219b922b2d9eda5a"
+              }
+            ],
+            "totalTimeSpent": 18
+          }
+        },
+        "completedAt": "2025-10-26T07:46:13.525Z",
+        "createdAt": "2025-10-26T07:46:13.532Z",
+        "updatedAt": "2025-10-26T07:46:13.537Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd421db8d734ec0c2c572",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "lessonId": "68fce1a0f42493015254d305",
+        "score": 100,
+        "isPassed": true,
+        "timeSpent": 28,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fce1a0f42493015254d34c",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd421db8d734ec0c2c573"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d34d",
+                "userAnswer": "Breakfast",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd421db8d734ec0c2c574"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d34a",
+                "userAnswer": "Wake up",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd421db8d734ec0c2c575"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d34b",
+                "userAnswer": "brush",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdd421db8d734ec0c2c576"
+              }
+            ],
+            "totalTimeSpent": 28
+          }
+        },
+        "completedAt": "2025-10-26T07:56:17.541Z",
+        "createdAt": "2025-10-26T07:56:17.549Z",
+        "updatedAt": "2025-10-26T07:56:17.554Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fddc202ed33ccb369d5d58",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "lessonId": "68fce1a0f42493015254d307",
+        "score": 100,
+        "isPassed": true,
+        "timeSpent": 19,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fce1a0f42493015254d356",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fddc202ed33ccb369d5d59"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d355",
+                "userAnswer": "coffee",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fddc202ed33ccb369d5d5a"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d357",
+                "userAnswer": "Milk",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fddc202ed33ccb369d5d5b"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d354",
+                "userAnswer": "Rice",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fddc202ed33ccb369d5d5c"
+              }
+            ],
+            "totalTimeSpent": 19
+          }
+        },
+        "completedAt": "2025-10-26T08:30:24.654Z",
+        "createdAt": "2025-10-26T08:30:24.665Z",
+        "updatedAt": "2025-10-26T08:30:24.674Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdddb22ed33ccb369d5d77",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "lessonId": "68fce1a0f42493015254d308",
+        "score": 80,
+        "isPassed": true,
+        "timeSpent": 59,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fce1a0f42493015254d359",
+                "userAnswer": "Plane",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdddb22ed33ccb369d5d78"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d35a",
+                "userAnswer": "ticket",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdddb22ed33ccb369d5d79"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d35b",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68fdddb22ed33ccb369d5d7a"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d35c",
+                "userAnswer": "Airport",
+                "isCorrect": false,
+                "timeSpent": 0,
+                "_id": "68fdddb22ed33ccb369d5d7b"
+              }
+            ],
+            "totalTimeSpent": 59
+          }
+        },
+        "completedAt": "2025-10-26T08:37:06.297Z",
+        "createdAt": "2025-10-26T08:37:06.299Z",
+        "updatedAt": "2025-10-26T08:37:06.300Z",
+        "__v": 0
+      },
+      {
+        "_id": "68ffc8a0a605f89c4f194bf0",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "lessonId": "68fe0faa6a5ef7c901222b79",
+        "score": 100,
+        "isPassed": true,
+        "timeSpent": 3,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fe0faa6a5ef7c901222b81",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68ffc8a1a605f89c4f194bf1"
+              }
+            ],
+            "totalTimeSpent": 3
+          }
+        },
+        "completedAt": "2025-10-27T19:31:44.996Z",
+        "createdAt": "2025-10-27T19:31:45.003Z",
+        "updatedAt": "2025-10-27T19:31:45.010Z",
+        "__v": 0
+      },
+      {
+        "_id": "68ffc9bda605f89c4f194cad",
+        "userId": "68ffc8daa605f89c4f194c10",
+        "lessonId": "68fce1a0f42493015254d304",
+        "score": 100,
+        "isPassed": true,
+        "timeSpent": 28,
+        "answers": {
+          "reading": {
+            "highlightedWordsClicked": [],
+            "timeSpent": 0
+          },
+          "listening": {
+            "questions": [],
+            "totalTimeSpent": 0
+          },
+          "quiz": {
+            "questions": [
+              {
+                "questionId": "68fce1a0f42493015254d346",
+                "userAnswer": "Chào buổi sáng",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68ffc9bda605f89c4f194cae"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d348",
+                "userAnswer": "True",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68ffc9bda605f89c4f194caf"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d347",
+                "userAnswer": "meet",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68ffc9bda605f89c4f194cb0"
+              },
+              {
+                "questionId": "68fce1a0f42493015254d345",
+                "userAnswer": "Hi",
+                "isCorrect": true,
+                "timeSpent": 0,
+                "_id": "68ffc9bda605f89c4f194cb1"
+              }
+            ],
+            "totalTimeSpent": 28
+          }
+        },
+        "completedAt": "2025-10-27T19:36:29.283Z",
+        "createdAt": "2025-10-27T19:36:29.287Z",
+        "updatedAt": "2025-10-27T19:36:29.291Z",
+        "__v": 0
+      }
+    ],
+    "quizresults": [],
+    "translations": [
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              112,
+              105,
+              159,
+              228,
+              22,
+              18,
+              177,
+              213,
+              158,
+              46
+            ]
+          }
+        },
+        "originalText": "late",
+        "translatedText": "trễ, muộn",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T12:26:17.328Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              112,
+              121,
+              159,
+              228,
+              22,
+              18,
+              177,
+              213,
+              158,
+              49
+            ]
+          }
+        },
+        "originalText": "get",
+        "translatedText": "được, có được",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T12:26:33.965Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              112,
+              137,
+              159,
+              228,
+              22,
+              18,
+              177,
+              213,
+              158,
+              52
+            ]
+          }
+        },
+        "originalText": "early",
+        "translatedText": "sớm",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T12:26:49.015Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              113,
+              57,
+              159,
+              228,
+              22,
+              18,
+              177,
+              213,
+              158,
+              55
+            ]
+          }
+        },
+        "originalText": "morning",
+        "translatedText": "buổi sáng",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T12:29:45.223Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              113,
+              76,
+              159,
+              228,
+              22,
+              18,
+              177,
+              213,
+              158,
+              57
+            ]
+          }
+        },
+        "originalText": "newspaper",
+        "translatedText": "báo",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T12:30:04.310Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              141,
+              72,
+              156,
+              151,
+              112,
+              73,
+              165,
+              153,
+              132,
+              201
+            ]
+          }
+        },
+        "originalText": "usually",
+        "translatedText": "thường thường",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T14:29:28.917Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              214,
+              211,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              172,
+              188
+            ]
+          }
+        },
+        "originalText": "early",
+        "translatedText": "sớm",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T19:43:15.986Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              214,
+              219,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              172,
+              191
+            ]
+          }
+        },
+        "originalText": "early",
+        "translatedText": "sớm",
+        "sourceLanguage": "en",
+        "targetLanguage": "vi",
+        "isVocab": false,
+        "timestamp": "2025-10-24T19:43:23.390Z",
+        "__v": 0
+      }
+    ],
+    "translationhistories": [],
+    "conversationhistories": [
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              199,
+              242,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              92
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "You",
+        "aiResponse": "Hello! How can I help you today?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761331186817-reply.mp3",
+        "createdAt": "2025-10-24T18:39:46.823Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              199,
+              252,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              94
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "Các bạn hãy đăng kí cho kênh lalaschool Để không bỏ lỡ những video hấp dẫn",
+        "aiResponse": "Đúng rồi! Đăng ký kênh sẽ giúp bạn không bỏ lỡ những video thú vị và bổ ích. Hãy cùng nhau học tập nhé!",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761331196242-reply.mp3",
+        "createdAt": "2025-10-24T18:39:56.244Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              200,
+              9,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              96
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "Máu tu rồi",
+        "aiResponse": "Có vẻ như bạn đang gặp vấn đề sức khỏe. Hãy nhớ rằng việc chăm sóc bản thân là rất quan trọng. Nếu cần, bạn hãy đi gặp bác sĩ nhé!",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761331209252-reply.mp3",
+        "createdAt": "2025-10-24T18:40:09.254Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              200,
+              30,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              98
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "Hey, what can you do?",
+        "aiResponse": "Hi there! I can help you with learning English, answering questions, practicing conversation, or even sharing tips on writing. What would you like to focus on today?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761331230712-reply.mp3",
+        "createdAt": "2025-10-24T18:40:30.714Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              200,
+              96,
+              55,
+              207,
+              219,
+              46,
+              197,
+              71,
+              35,
+              100
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "Bạn biết nói tiếng Việt không?",
+        "aiResponse": "Mình không biết nói tiếng Việt, nhưng mình rất vui được giúp đỡ bạn bằng tiếng Anh! Nếu bạn có câu hỏi gì, cứ hỏi nhé!",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761331296180-reply.mp3",
+        "createdAt": "2025-10-24T18:41:36.187Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              210,
+              72,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              171,
+              144
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "You",
+        "aiResponse": "Hi there! How can I help you today?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761333832058-reply.mp3",
+        "createdAt": "2025-10-24T19:23:52.059Z",
+        "__v": 0
+      },
+      {
+        "_id": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              251,
+              214,
+              19,
+              165,
+              54,
+              235,
+              78,
+              251,
+              146,
+              172,
+              116
+            ]
+          }
+        },
+        "userId": {
+          "buffer": {
+            "type": "Buffer",
+            "data": [
+              104,
+              250,
+              97,
+              236,
+              98,
+              131,
+              41,
+              168,
+              56,
+              198,
+              4,
+              214
+            ]
+          }
+        },
+        "transcript": "You",
+        "aiResponse": "Hello! How can I help you today?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761334803996-reply.mp3",
+        "createdAt": "2025-10-24T19:40:03.997Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce55b4a8258ac5eaea9d6",
+        "userId": "68fce4404a8258ac5eaea8e8",
+        "transcript": "Hello?",
+        "aiResponse": "Hi there! How can I help you today?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761404251587-reply.mp3",
+        "createdAt": "2025-10-25T14:57:31.588Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fce59d4a8258ac5eaea9d8",
+        "userId": "68fce4404a8258ac5eaea8e8",
+        "transcript": "I'm so very sick so what can what can I do",
+        "aiResponse": "I'm sorry to hear that you're not feeling well! Make sure to rest, stay hydrated, and eat light, nutritious foods if you can. If your symptoms persist or worsen, it might be a good idea to see a doctor. Take care of yourself!",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761404317700-reply.mp3",
+        "createdAt": "2025-10-25T14:58:37.701Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd494db8d734ec0c2c59f",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "transcript": "Hello, how are you today?",
+        "aiResponse": "Hello! I'm doing well, thank you! How about you?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761465492841-reply.mp3",
+        "createdAt": "2025-10-26T07:58:12.849Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd4acdb8d734ec0c2c5a1",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "transcript": "Hello, how are you today?",
+        "aiResponse": "Hello! I’m doing well, thank you! How about you?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761465516705-reply.mp3",
+        "createdAt": "2025-10-26T07:58:36.707Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd616db8d734ec0c2c5b4",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "transcript": "Hello, how are you today?",
+        "aiResponse": "Hello! I'm doing well, thank you! How about you?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761465878012-reply.mp3",
+        "createdAt": "2025-10-26T08:04:38.013Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd634db8d734ec0c2c5b6",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "transcript": "You gotta listen to me.",
+        "aiResponse": "I’m all ears! What’s on your mind?",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761465908445-reply.mp3",
+        "createdAt": "2025-10-26T08:05:08.446Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd817c179173f0ad1ab94",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "transcript": "I can learn English very well. I can.",
+        "aiResponse": "Absolutely! That positive attitude will take you far. Keep practicing, and you'll see great improvements!",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761466391093-reply.mp3",
+        "createdAt": "2025-10-26T08:13:11.098Z",
+        "__v": 0
+      },
+      {
+        "_id": "68fdd82cc179173f0ad1ab96",
+        "userId": "68fce2a63ce5ca203f96c15c",
+        "transcript": "I want to learn English well so what can I do?",
+        "aiResponse": "That's a great goal! Here are a few tips to help you improve your English:\n\n1. **Practice Daily**: Try to read, write, or speak in English every day.\n2. **Watch Movies/Shows**: Choose English films or shows with subtitles to improve listening skills.\n3. **Read Books**: Start with easier books or articles, then gradually choose more challenging material.\n4. **Speak with Others**: Find language partners or join conversation groups.\n5. **Use Apps**: Language learning apps can make practice fun and interactive.\n\nRemember, consistency is key! You're doing great by wanting to learn!",
+        "audioUrl": "http://172.16.17.55:4000/uploads/1761466412684-reply.mp3",
+        "createdAt": "2025-10-26T08:13:32.686Z",
+        "__v": 0
+      }
+    ]
+  }
+};
+
+// =============================================
+// IMPORT FUNCTION
+// =============================================
+
+async function importDatabase() {
+  try {
+    console.log('🚀 Starting database import...');
+    console.log('🔌 Connecting to MongoDB...');
+    console.log(`   URI: ${MONGODB_URI.replace(/://[^:]+:[^@]+@/, '://***:***@')}`);
+    
+    await mongoose.connect(MONGODB_URI);
+    console.log('✅ Connected to MongoDB');
+
+    console.log(`📊 Import metadata:`);
+    console.log(`   Export Date: ${exportData.metadata?.exportDate || 'Unknown'}`);
+    console.log(`   Database: ${exportData.metadata?.database || 'Unknown'}`);
+    console.log(`   Version: ${exportData.metadata?.version || 'Unknown'}`);
+
+    const db = mongoose.connection.db;
+
+    // Ask for confirmation to clear existing data
+    console.log('\n⚠️  WARNING: This will clear all existing data!');
+    console.log('   To import without clearing, run: KEEP_DATA=true node standalone-import-complete.js');
+    
+    const keepData = process.env.KEEP_DATA === 'true' || process.env.KEEP_DATA === '1';
+    
+    if (!keepData) {
+      console.log('🗑️  Clearing existing data...');
+      for (const collectionName of COLLECTIONS_ORDER) {
+        try {
+          await db.collection(collectionName).deleteMany({});
+          console.log(`   ✅ Cleared ${collectionName}`);
+        } catch (error) {
+          console.log(`   ⚠️  Could not clear ${collectionName}: ${error.message}`);
+        }
+      }
+    } else {
+      console.log('📝 Keeping existing data (KEEP_DATA mode)');
+    }
+
+    console.log('\n📦 Importing collections...');
+    
+    let totalImported = 0;
+    
+    for (const collectionName of COLLECTIONS_ORDER) {
+      try {
+        const documents = exportData.data[collectionName] || [];
+        
+        if (documents.length === 0) {
+          console.log(`   ⏭️  ${collectionName}: No documents to import`);
+          continue;
+        }
+
+        console.log(`   📦 Importing ${collectionName} (${documents.length} documents)...`);
+        
+        // Process documents to handle ObjectId conversion
+        const processedDocs = documents.map(doc => {
+          const processed = JSON.parse(JSON.stringify(doc, (key, value) => {
+            // Convert string IDs back to ObjectId where needed
+            if (key === '_id' && typeof value === 'string' && value.match(/^[0-9a-fA-F]{24}$/)) {
+              return new mongoose.Types.ObjectId(value);
+            }
+            // Handle nested ObjectId fields
+            if (typeof value === 'string' && value.match(/^[0-9a-fA-F]{24}$/) && 
+                (key.includes('Id') || key.includes('_id') || key === 'userId' || key === 'lessonId' || key === 'videoId')) {
+              return new mongoose.Types.ObjectId(value);
+            }
+            return value;
+          }));
+          return processed;
+        });
+
+        // Insert documents
+        if (processedDocs.length > 0) {
+          await db.collection(collectionName).insertMany(processedDocs);
+          console.log(`   ✅ ${collectionName}: Imported ${processedDocs.length} documents`);
+          totalImported += processedDocs.length;
+        }
+        
+      } catch (error) {
+        console.error(`   ❌ Error importing ${collectionName}:`, error.message);
+        // Continue with other collections even if one fails
+      }
+    }
+
+    console.log('\n🎉 Database import completed!');
+    console.log(`📊 Total documents imported: ${totalImported}`);
+    
+    // Display final summary
+    console.log('\n📊 Final Database Summary:');
+    for (const collectionName of COLLECTIONS_ORDER) {
+      try {
+        const count = await db.collection(collectionName).countDocuments();
+        console.log(`   ${collectionName}: ${count} documents`);
+      } catch (error) {
+        console.log(`   ${collectionName}: Error counting documents`);
+      }
+    }
+
+    await mongoose.disconnect();
+    console.log('\n🔌 Disconnected from MongoDB');
+    console.log('✅ Import process completed successfully!');
+    
+  } catch (error) {
+    console.error('\n❌ Import failed:', error.message);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  }
+}
+
+// =============================================
+// RUN IMPORT
+// =============================================
+
+if (require.main === module) {
+  console.log('============================================');
+  console.log('ENGLISH APP DATABASE IMPORT');
+  console.log('============================================\n');
+  importDatabase();
+}
+
+module.exports = { importDatabase };

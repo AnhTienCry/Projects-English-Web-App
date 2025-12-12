@@ -1,0 +1,10 @@
+Hello	Xin chào	/həˈləʊ/	Hello, how are you?	Xin chào, bạn khỏe không?
+Goodbye	Tạm biệt	/ɡʊdˈbaɪ/	Goodbye, see you later	Tạm biệt, hẹn gặp lại
+Thank you	Cảm ơn	/θæŋk juː/	Thank you very much	Cảm ơn bạn rất nhiều
+Please	Làm ơn	/pliːz/	Please help me	Làm ơn giúp tôi
+Sorry	Xin lỗi	/ˈsɒri/	Sorry, I'm late	Xin lỗi, tôi đến muộn
+Yes	Có	/jes/	Yes, I understand	Có, tôi hiểu
+No	Không	/nəʊ/	No, thank you	Không, cảm ơn
+Water	Nước	/ˈwɔːtə/	I need water	Tôi cần nước
+Food	Thức ăn	/fuːd/	The food is delicious	Thức ăn rất ngon
+House	Nhà	/haʊs/	This is my house	Đây là nhà của tôi

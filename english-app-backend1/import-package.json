@@ -1,0 +1,66 @@
+{
+  "name": "english-app-database-import",
+  "version": "1.0.0",
+  "description": "Import script for English App database",
+  "main": "standalone-import-complete.js",
+  "scripts": {
+    "import": "node standalone-import-complete.js",
+    "import-keep": "cross-env KEEP_DATA=true node standalone-import-complete.js"
+  },
+  "keywords": [
+    "database",
+    "import",
+    "english-app"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^8.19.0",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

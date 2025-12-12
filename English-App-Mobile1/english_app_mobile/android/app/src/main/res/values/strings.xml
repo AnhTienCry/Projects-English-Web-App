@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">English Learning App</string>
+    <!-- Google Sign-In OAuth Client ID (Web Client) -->
+    <string name="default_web_client_id">492700278542-99sfef950bdnfi7jgv7r175paadr807b.apps.googleusercontent.com</string>
+    
+    <!-- Facebook Login App ID -->
+    <string name="facebook_app_id">1407842490937506</string>
+    <string name="fb_login_protocol_scheme">fb1407842490937506</string>
+</resources>
+

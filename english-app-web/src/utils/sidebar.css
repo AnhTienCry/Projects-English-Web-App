@@ -1,0 +1,111 @@
+/* ============================= */
+/* 🌙 SIDEBAR - MODERN DARK THEME */
+/* ============================= */
+
+.sidebar {
+  background-color: #1e293b; /* Slate-800: sáng hơn 111827 */
+  color: #f9fafb;
+  width: 250px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  padding: 18px 20px;
+  border-bottom: 1px solid #334155;
+  background-color: #0f172a; /* Slate-900 */
+}
+
+/* Menu section */
+.sidebar-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 12px;
+}
+
+/* Menu item */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #e2e8f0 !important; /* Text sáng hơn */
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar-item:hover {
+  background-color: #334155; /* Slate-700 hover */
+  color: #ffffff !important;
+}
+
+/* Active state */
+.sidebar-item.active {
+  background-color: #3b82f6; /* Xanh sáng */
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Icon */
+.sidebar-item .icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* Footer */
+.sidebar-footer {
+  border-top: 1px solid #334155;
+  padding: 18px 20px;
+  background-color: #0f172a; /* Footer đậm hơn một chút */
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.sidebar-footer .role {
+  font-size: 13px;
+  color: #94a3b8; /* xám sáng */
+}
+
+.sidebar-footer .email {
+  font-size: 14px;
+  color: #f8fafc;
+  margin-top: 3px;
+  word-break: break-all;
+}
+
+.sidebar-footer button {
+  width: 100%;
+  background: #ef4444;
+  color: #fff;
+  border: 0;
+  padding: 9px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-footer button:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
