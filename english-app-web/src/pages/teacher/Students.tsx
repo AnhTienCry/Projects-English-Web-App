@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Mail, Award, TrendingUp, BookOpen, ArrowLeft } from 'lucide-react';
 
+interface StudentData {
+  _id?: string;
+  userId?: string;
+  email?: string;
+  nickname?: string;
+  name?: string;
+  totalScore?: number;
+  points?: number;
+  level?: number;
+  completedLessons?: number;
+  createdAt?: string;
+}
+
 interface Student {
   _id: string;
   email: string;
@@ -50,7 +63,7 @@ export default function TeacherStudents() {
         const studentsData = data.students || data || [];
         
         // Map the data to Student interface
-        const studentList = studentsData.map((item: any) => ({
+        const studentList = studentsData.map((item: StudentData) => ({
           _id: item._id || item.userId,
           email: item.email || 'N/A',
           nickname: item.nickname || item.name || 'Student',
@@ -68,7 +81,7 @@ export default function TeacherStudents() {
         console.warn('Reports API not available, showing empty state');
         setStudents([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('❌ Error:', err);
       // Don't show error, just show empty state
       setStudents([]);
@@ -188,9 +201,6 @@ export default function TeacherStudents() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                     Tiến độ
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                    Thao tác
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -231,13 +241,6 @@ export default function TeacherStudents() {
                           <BookOpen size={14} className="mr-1" />
                           {student.progress?.completedLessons || 0} bài
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium">
-                          Xem tiến độ
-                        </button>
                       </div>
                     </td>
                   </tr>
