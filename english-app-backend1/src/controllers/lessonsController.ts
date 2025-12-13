@@ -442,6 +442,8 @@ export async function getUserProgressWithLessons(req: AuthRequest, res: Response
       const lessonResult = lessonResultMap.get(lesson._id.toString());
       const percent = lessonResult ? lessonResult.score : 0;
       const isCompleted = completedLessons.includes(lesson._id.toString());
+      const completedAt = lessonResult?.completedAt || null;
+      const lastAccessedAt = lessonResult?.updatedAt || lessonResult?.completedAt || null;
       
       return {
         id: lesson._id,
@@ -453,6 +455,8 @@ export async function getUserProgressWithLessons(req: AuthRequest, res: Response
         percent: percent,
         isCompleted: isCompleted,
         is_completed: isCompleted,
+        completedAt: completedAt,
+        lastAccessedAt: lastAccessedAt,
       };
     });
 

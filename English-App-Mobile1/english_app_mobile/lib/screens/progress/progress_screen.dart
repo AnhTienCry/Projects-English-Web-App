@@ -532,6 +532,45 @@ class _ProgressScreenState extends State<ProgressScreen> {
         : int.tryParse(l['totalCorrect']?.toString() ?? '0') ?? 0;
     final completed = l['isCompleted'] == true;
     final locked = l['locked'] == true;
+    
+    // Lấy ngày truy cập cuối cùng từ lastAccessedAt, completedAt hoặc updatedAt
+    String? lastAccessDateStr;
+    final lastAccess = l['lastAccessedAt'] ?? l['completedAt'] ?? l['updatedAt'];
+    if (lastAccess != null) {
+      try {
+        final date = DateTime.parse(lastAccess.toString());
+        lastAccessDateStr = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+      } catch (_) {}
+    }
+    
+    // Xác định trạng thái: Hoàn thành / Đang học / Chưa bắt đầu
+    // - Hoàn thành: isCompleted = true
+    // - Đang học: có percent > 0 hoặc có lastAccess
+    // - Chưa bắt đầu: chưa có gì
+    final bool hasStarted = percent > 0 || lastAccess != null;
+    
+    // Trạng thái và màu sắc
+    String statusText;
+    Color statusBgColor;
+    Color statusTextColor;
+    IconData statusIcon;
+    
+    if (completed) {
+      statusText = 'Đã hoàn thành';
+      statusBgColor = Colors.green.shade100;
+      statusTextColor = Colors.green.shade700;
+      statusIcon = Icons.check_circle;
+    } else if (hasStarted) {
+      statusText = 'Đang học';
+      statusBgColor = Colors.orange.shade100;
+      statusTextColor = Colors.orange.shade700;
+      statusIcon = Icons.hourglass_bottom;
+    } else {
+      statusText = 'Chưa bắt đầu';
+      statusBgColor = Colors.grey.shade200;
+      statusTextColor = Colors.grey.shade600;
+      statusIcon = Icons.play_circle_outline;
+    }
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -551,29 +590,84 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 completed ? Icons.check_circle : Icons.book_outlined,
                 color: completed ? Colors.green : Colors.blue.shade300,
               ),
-        title: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
-              ),
-            ),
-            if (isRank && locked)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Locked',
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    color: Colors.grey.shade700,
+            // Tiêu đề lesson
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
                   ),
                 ),
-              ),
+                if (isRank && locked)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Locked',
+                      style: GoogleFonts.poppins(
+                        fontSize: 10,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            // Hiển thị lần truy cập cuối + trạng thái hoàn thành
+            Row(
+              children: [
+                // Trạng thái: Đã hoàn thành / Đang học / Chưa bắt đầu
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: statusBgColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        statusIcon,
+                        size: 12,
+                        color: statusTextColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        statusText,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: statusTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Lần truy cập cuối (chỉ hiển thị nếu đã bắt đầu)
+                if (lastAccessDateStr != null && hasStarted)
+                  Row(
+                    children: [
+                      Icon(Icons.access_time, size: 12, color: Colors.grey.shade600),
+                      const SizedBox(width: 4),
+                      Text(
+                        lastAccessDateStr,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ],
         ),
         subtitle: Padding(
