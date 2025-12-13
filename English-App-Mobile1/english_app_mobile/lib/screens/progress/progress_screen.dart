@@ -4,11 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api/api_client.dart'; // ensure dio is available
+import '../../api/practice_api.dart';
 import '../../utils/progress_store.dart';
 import '../../config/api_config.dart';
 
 import '../quiz/quiz_screen.dart';
 import '../rankandbadge/leaderboard_screen.dart';
+import '../practice/practice_set_list_screen.dart';
 
 // Add helper function here if not imported
 Future<void> setAuthHeaderFromStorage() async {
@@ -47,6 +49,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
   // badges from local store
   List<dynamic> _badges = [];
+
+  // Practice sets (IELTS, TOEIC)
+  List<dynamic> _ieltsSets = [];
+  List<dynamic> _toeicSets = [];
+  Map<String, Map<String, dynamic>> _practiceProgress = {}; // setId -> {skill -> submission}
+
+  // Ẩn/hiện danh sách bài học
+  bool _showNormalLessons = false;
+  bool _showRankLessons = false;
+  bool _showIeltsProgress = false;
+  bool _showToeicProgress = false;
 
   @override
   void initState() {
@@ -147,17 +160,28 @@ class _ProgressScreenState extends State<ProgressScreen> {
     });
 
     try {
-      final responses = await Future.wait([
+      // Gọi các API Dio riêng
+      final dioResponses = await Future.wait([
         dio.get("/api/progressions/me"),
         dio.get("/api/lessons/progress/me"),
         dio.get(ApiConfig.quizRankLessonsEndpoint), // Load rank lessons
       ]);
+      
+      // Gọi các Practice API riêng
+      final practiceResponses = await Future.wait([
+        PracticeApi.fetchPublishedSets(examType: 'ielts'),
+        PracticeApi.fetchPublishedSets(examType: 'toeic'),
+        PracticeApi.getSubmissions(), // Lấy tất cả submissions của user
+      ]);
 
       if (!mounted) return;
 
-      final progData = responses[0].data;
-      final lessonsData = responses[1].data;
-      final rankLessonsData = responses[2].data; // Rank lessons data
+      final progData = dioResponses[0].data;
+      final lessonsData = dioResponses[1].data;
+      final rankLessonsData = dioResponses[2].data; // Rank lessons data
+      final ieltsSetsData = practiceResponses[0];
+      final toeicSetsData = practiceResponses[1];
+      final submissionsData = practiceResponses[2];
 
       debugPrint('progData from /api/progressions/me = $progData'); // DEBUG: xem cấu trúc BE trả
 
@@ -329,6 +353,33 @@ class _ProgressScreenState extends State<ProgressScreen> {
         ProgressStore.saveRankCompleted(_cachedRankCompleted);
       }
 
+      // ====== XỬ LÝ PRACTICE SETS (IELTS/TOEIC) ======
+      // Sắp xếp theo title
+      ieltsSetsData.sort((a, b) => (a['title'] ?? '').toString().compareTo((b['title'] ?? '').toString()));
+      toeicSetsData.sort((a, b) => (a['title'] ?? '').toString().compareTo((b['title'] ?? '').toString()));
+
+      // Tạo map progress từ submissions
+      final practiceProgressMap = <String, Map<String, dynamic>>{};
+      for (final sub in submissionsData) {
+        final setId = (sub['setId']?['_id'] ?? sub['setId'] ?? '').toString();
+        final skill = (sub['skill'] ?? '').toString();
+        if (setId.isNotEmpty && skill.isNotEmpty) {
+          practiceProgressMap[setId] ??= {};
+          // Lưu submission mới nhất cho mỗi skill
+          final existing = practiceProgressMap[setId]![skill];
+          if (existing == null) {
+            practiceProgressMap[setId]![skill] = sub;
+          } else {
+            // So sánh ngày để lấy submission mới nhất
+            final existingDate = DateTime.tryParse(existing['createdAt']?.toString() ?? '');
+            final newDate = DateTime.tryParse(sub['createdAt']?.toString() ?? '');
+            if (newDate != null && (existingDate == null || newDate.isAfter(existingDate))) {
+              practiceProgressMap[setId]![skill] = sub;
+            }
+          }
+        }
+      }
+
       if (mounted) {
         setState(() {
           _progress = (progData is Map<String, dynamic>)
@@ -337,6 +388,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
           _recentTopics = recent;
           _lessonsProgress = items;
           _rankLessonsProgress = rankItems;
+          _ieltsSets = ieltsSetsData;
+          _toeicSets = toeicSetsData;
+          _practiceProgress = practiceProgressMap;
         });
         // Reload local rank/badges after loading server data
         await _reloadLocalRankBadges();
@@ -747,6 +801,286 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
+  /// Widget hiển thị một practice set (IELTS/TOEIC)
+  Widget _buildPracticeSetTile(dynamic setData, String examType) {
+    final setId = (setData['_id'] ?? '').toString();
+    final title = (setData['title'] ?? 'Đề thi').toString();
+    
+    // Lấy progress của set này
+    final setProgress = _practiceProgress[setId] ?? {};
+    
+    // Tính toán skills đã làm
+    final skills = ['listening', 'reading', 'writing', 'speaking'];
+    int completedSkills = 0;
+    double totalScore = 0;
+    int totalItems = 0;
+    DateTime? lastAttemptDate;
+    
+    for (final skill in skills) {
+      final submission = setProgress[skill];
+      if (submission != null) {
+        completedSkills++;
+        totalScore += ((submission['score'] ?? 0) as num).toDouble();
+        totalItems += ((submission['total'] ?? 0) as num).toInt();
+        
+        final attemptDate = DateTime.tryParse(submission['createdAt']?.toString() ?? '');
+        if (attemptDate != null && (lastAttemptDate == null || attemptDate.isAfter(lastAttemptDate))) {
+          lastAttemptDate = attemptDate;
+        }
+      }
+    }
+    
+    // Tính phần trăm hoàn thành (dựa trên số skill đã làm)
+    final progressPercent = (completedSkills / 4 * 100).round();
+    final isCompleted = completedSkills == 4;
+    final hasStarted = completedSkills > 0;
+    
+    // Format ngày
+    String? lastAccessDateStr;
+    if (lastAttemptDate != null) {
+      lastAccessDateStr = '${lastAttemptDate.day.toString().padLeft(2, '0')}/${lastAttemptDate.month.toString().padLeft(2, '0')}/${lastAttemptDate.year}';
+    }
+    
+    // Trạng thái
+    String statusText;
+    Color statusBgColor;
+    Color statusTextColor;
+    IconData statusIcon;
+    
+    if (isCompleted) {
+      statusText = 'Đã hoàn thành';
+      statusBgColor = Colors.green.shade100;
+      statusTextColor = Colors.green.shade700;
+      statusIcon = Icons.check_circle;
+    } else if (hasStarted) {
+      statusText = 'Đang làm ($completedSkills/4)';
+      statusBgColor = Colors.orange.shade100;
+      statusTextColor = Colors.orange.shade700;
+      statusIcon = Icons.hourglass_bottom;
+    } else {
+      statusText = 'Chưa bắt đầu';
+      statusBgColor = Colors.grey.shade200;
+      statusTextColor = Colors.grey.shade600;
+      statusIcon = Icons.play_circle_outline;
+    }
+    
+    // Màu gradient dựa trên examType
+    final gradientColors = examType == 'ielts' 
+        ? [Colors.red.shade400, Colors.red.shade600]
+        : [Colors.blue.shade400, Colors.blue.shade600];
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          // Mở màn hình practice set
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PracticeSetListScreen(examType: examType),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header với icon và title
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: gradientColors),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      examType == 'ielts' ? Icons.school : Icons.business_center,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          examType.toUpperCase(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: gradientColors[1],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Badge phần trăm
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isCompleted ? Colors.green.shade50 : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$progressPercent%',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w700,
+                        color: isCompleted ? Colors.green.shade700 : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Status và ngày
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: statusBgColor,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(statusIcon, size: 14, color: statusTextColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          statusText,
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: statusTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (lastAccessDateStr != null) ...[
+                    const SizedBox(width: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: 14, color: Colors.grey.shade600),
+                        const SizedBox(width: 4),
+                        Text(
+                          lastAccessDateStr,
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progressPercent / 100,
+                  minHeight: 8,
+                  color: isCompleted ? Colors.green : gradientColors[0],
+                  backgroundColor: Colors.grey.shade200,
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Skills progress
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: skills.map((skill) {
+                  final hasSubmission = setProgress.containsKey(skill);
+                  final submission = setProgress[skill];
+                  final score = submission != null ? '${submission['score']}/${submission['total']}' : '-';
+                  
+                  IconData skillIcon;
+                  String skillName;
+                  switch (skill) {
+                    case 'listening':
+                      skillIcon = Icons.headphones;
+                      skillName = 'L';
+                      break;
+                    case 'reading':
+                      skillIcon = Icons.menu_book;
+                      skillName = 'R';
+                      break;
+                    case 'writing':
+                      skillIcon = Icons.edit_note;
+                      skillName = 'W';
+                      break;
+                    case 'speaking':
+                      skillIcon = Icons.mic;
+                      skillName = 'S';
+                      break;
+                    default:
+                      skillIcon = Icons.help_outline;
+                      skillName = '?';
+                  }
+                  
+                  return Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: hasSubmission ? Colors.green.shade100 : Colors.grey.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          skillIcon,
+                          size: 18,
+                          color: hasSubmission ? Colors.green.shade700 : Colors.grey.shade500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        skillName,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: hasSubmission ? Colors.green.shade700 : Colors.grey.shade500,
+                        ),
+                      ),
+                      if (hasSubmission)
+                        Text(
+                          score,
+                          style: GoogleFonts.poppins(
+                            fontSize: 9,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildError() => Center(
     child: Padding(
       padding: const EdgeInsets.all(24),
@@ -857,77 +1191,206 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
                       // Normal Lessons Progress
                       if (_lessonsProgress.isNotEmpty) ...[
-                        Row(
-                          children: [
-                            Icon(Icons.book_rounded, size: 20, color: Colors.blue.shade600),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Normal Lessons',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.blue.shade600,
-                              ),
+                        InkWell(
+                          onTap: () => setState(() => _showNormalLessons = !_showNormalLessons),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            child: Row(
+                              children: [
+                                Icon(Icons.book_rounded, size: 20, color: Colors.blue.shade600),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Normal Lessons',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.blue.shade600,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  _showNormalLessons ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                  color: Colors.blue.shade600,
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '${_lessonsProgress.where((l) => l['isCompleted'] == true).length}/${_lessonsProgress.length}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const Spacer(),
-                            Text(
-                              '${_lessonsProgress.where((l) => l['isCompleted'] == true).length}/${_lessonsProgress.length}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        ListView.separated(
-                          itemCount: _lessonsProgress.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final lesson = _lessonsProgress[index];
-                            return _buildLessonTile(lesson, isRank: false);
-                          },
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                        ),
+                        if (_showNormalLessons) ...[
+                          const SizedBox(height: 12),
+                          ListView.separated(
+                            itemCount: _lessonsProgress.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final lesson = _lessonsProgress[index];
+                              return _buildLessonTile(lesson, isRank: false);
+                            },
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                          ),
+                        ],
                         const SizedBox(height: 24),
                       ],
 
                       // Rank Lessons Progress
                       if (_rankLessonsProgress.isNotEmpty) ...[
-                        Row(
-                          children: [
-                            Icon(Icons.emoji_events_rounded, size: 20, color: Colors.orange.shade600),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Rank Lessons',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.orange.shade600,
-                              ),
+                        InkWell(
+                          onTap: () => setState(() => _showRankLessons = !_showRankLessons),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            child: Row(
+                              children: [
+                                Icon(Icons.emoji_events_rounded, size: 20, color: Colors.orange.shade600),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Rank Lessons',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.orange.shade600,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  _showRankLessons ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                  color: Colors.orange.shade600,
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '${_rankLessonsProgress.where((l) => l['isCompleted'] == true).length}/${_rankLessonsProgress.length}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const Spacer(),
-                            Text(
-                              '${_rankLessonsProgress.where((l) => l['isCompleted'] == true).length}/${_rankLessonsProgress.length}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
+                          ),
+                        ),
+                        if (_showRankLessons) ...[
+                          const SizedBox(height: 12),
+                          ListView.separated(
+                            itemCount: _rankLessonsProgress.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final lesson = _rankLessonsProgress[index];
+                              return _buildLessonTile(lesson, isRank: true);
+                            },
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                      ],
+
+                      // ====== IELTS Practice Progress ======
+                      if (_ieltsSets.isNotEmpty) ...[
+                        InkWell(
+                          onTap: () => setState(() => _showIeltsProgress = !_showIeltsProgress),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            child: Row(
+                              children: [
+                                Icon(Icons.school_rounded, size: 20, color: Colors.red.shade600),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'IELTS Practice',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.red.shade600,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  _showIeltsProgress ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                  color: Colors.red.shade600,
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '${_ieltsSets.length} đề',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        ListView.separated(
-                          itemCount: _rankLessonsProgress.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final lesson = _rankLessonsProgress[index];
-                            return _buildLessonTile(lesson, isRank: true);
-                          },
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
+                        if (_showIeltsProgress) ...[
+                          const SizedBox(height: 12),
+                          ListView.builder(
+                            itemCount: _ieltsSets.length,
+                            itemBuilder: (context, index) {
+                              return _buildPracticeSetTile(_ieltsSets[index], 'ielts');
+                            },
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                      ],
+
+                      // ====== TOEIC Practice Progress ======
+                      if (_toeicSets.isNotEmpty) ...[
+                        InkWell(
+                          onTap: () => setState(() => _showToeicProgress = !_showToeicProgress),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            child: Row(
+                              children: [
+                                Icon(Icons.business_center_rounded, size: 20, color: Colors.blue.shade600),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'TOEIC Practice',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.blue.shade600,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  _showToeicProgress ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                  color: Colors.blue.shade600,
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '${_toeicSets.length} đề',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
+                        if (_showToeicProgress) ...[
+                          const SizedBox(height: 12),
+                          ListView.builder(
+                            itemCount: _toeicSets.length,
+                            itemBuilder: (context, index) {
+                              return _buildPracticeSetTile(_toeicSets[index], 'toeic');
+                            },
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
                       ],
 
                       // Hiển thị thông báo nếu không có lesson nào
