@@ -22,6 +22,7 @@ class LessonTopicScreen extends StatefulWidget {
 
 class _LessonTopicScreenState extends State<LessonTopicScreen> {
   List<dynamic> _topics = [];
+  Map<String, bool> _completedStatus = {}; // Trạng thái hoàn thành từng topic
   bool _isLoading = true;
   String? _error;
 
@@ -37,14 +38,27 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
       _isLoading = true;
       _error = null;
       _topics = [];
+      _completedStatus = {};
     });
 
     final url = '${ApiConfig.baseUrl}${ApiConfig.topicsByLessonEndpoint}/${widget.lessonId}';
+    final statusUrl = '${ApiConfig.baseUrl}${ApiConfig.topicStatusEndpoint}/${widget.lessonId}';
     debugPrint('➡️ Fetching topics from: $url');
+    debugPrint('➡️ Fetching topic status from: $statusUrl');
 
     try {
-      final resp = await dio.get(url);
-      final data = resp.data;
+      // Gọi cả 2 API song song
+      final responses = await Future.wait([
+        dio.get(url),
+        dio.get(statusUrl).catchError((e) => Response(
+          requestOptions: RequestOptions(path: statusUrl),
+          data: {'topics': []},
+        )),
+      ]);
+      
+      final data = responses[0].data;
+      final statusData = responses[1].data;
+      
       List<dynamic> list = [];
 
       if (data is List) {
@@ -59,13 +73,25 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
         }
       }
 
+      // Parse trạng thái hoàn thành
+      final Map<String, bool> completed = {};
+      if (statusData is Map && statusData['topics'] is List) {
+        for (final t in statusData['topics']) {
+          final id = (t['_id'] ?? '').toString();
+          if (id.isNotEmpty) {
+            completed[id] = t['completed'] == true;
+          }
+        }
+      }
+
       if (!mounted) return;
       setState(() {
         _topics = list;
+        _completedStatus = completed;
         _isLoading = false;
         _error = list.isEmpty ? 'Chưa có topic cho bài học này.' : null;
       });
-      debugPrint('✅ Loaded ${list.length} topics');
+      debugPrint('✅ Loaded ${list.length} topics, ${completed.values.where((v) => v).length} completed');
     } on DioException catch (e) {
       final status = e.response?.statusCode;
       final msg = status == 404
@@ -93,15 +119,19 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
     final title = (topic['title'] ?? topic['name'] ?? 'Untitled Topic').toString();
     final subtitle = (topic['description'] ?? '').toString();
     final id = (topic['id'] ?? topic['_id'] ?? topic['topicId'] ?? '').toString();
+    final isCompleted = _completedStatus[id] == true;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: isCompleted 
+            ? BorderSide(color: Colors.green.shade400, width: 2)
+            : BorderSide.none,
       ),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           if (id.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -111,7 +141,8 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
             );
             return;
           }
-          Navigator.push(
+          // Chờ kết quả từ TopicOptionScreen và reload khi quay về
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => TopicOptionScreen(
@@ -122,6 +153,8 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
               ),
             ),
           );
+          // Reload để cập nhật trạng thái hoàn thành
+          _fetchTopics();
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
@@ -131,12 +164,14 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  color: isCompleted 
+                      ? Colors.green.shade100
+                      : const Color(0xFF6366F1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.topic,
-                  color: Color(0xFF6366F1),
+                child: Icon(
+                  isCompleted ? Icons.check_circle : Icons.topic,
+                  color: isCompleted ? Colors.green.shade600 : const Color(0xFF6366F1),
                   size: 24,
                 ),
               ),
@@ -145,14 +180,43 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        letterSpacing: -0.3,
-                        color: Colors.black87,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              letterSpacing: -0.3,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        if (isCompleted)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.check, size: 14, color: Colors.green.shade700),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Hoàn thành',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
                     if (subtitle.isNotEmpty) ...[
                       const SizedBox(height: 4),
