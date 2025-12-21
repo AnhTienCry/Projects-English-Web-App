@@ -885,18 +885,41 @@ export async function getTopicStatusByLesson(req: AuthRequest, res: Response) {
       return res.status(404).json({ error: { message: "User progress not found" } });
     }
 
-
     // Lấy toàn bộ Topic của bài học này
     const topics = await Topic.find({ lessonId }).select("_id title description order").sort({ order: 1 }).lean();
 
+    // Lấy thời gian hoàn thành từ ActivityLog
+    const activityLogs = await ActivityLog.find({
+      userId: new Types.ObjectId(userId),
+      'activities.type': 'topic'
+    }).lean();
+
+    // Tạo map để tra cứu completedAt theo topicId
+    const completedAtMap: Record<string, Date | null> = {};
+    for (const log of activityLogs) {
+      for (const activity of (log as any).activities || []) {
+        if (activity.type === 'topic' && activity.id) {
+          // Lưu completedAt mới nhất nếu có nhiều lần học
+          if (!completedAtMap[activity.id] || (activity.completedAt && new Date(activity.completedAt) > new Date(completedAtMap[activity.id]!))) {
+            completedAtMap[activity.id] = activity.completedAt || null;
+          }
+        }
+      }
+    }
+
     // Mapping trạng thái
-    const result = topics.map((t: any) => ({
-      _id: t._id,
-      title: t.title,
-      description: t.description,
-      order: t.order,
-      completed: userProgress.completedTopics?.includes(t._id.toString()) || false
-    }));
+    const result = topics.map((t: any) => {
+      const topicId = t._id.toString();
+      const isCompleted = userProgress.completedTopics?.includes(topicId) || false;
+      return {
+        _id: t._id,
+        title: t.title,
+        description: t.description,
+        order: t.order,
+        completed: isCompleted,
+        completedAt: isCompleted ? (completedAtMap[topicId] || null) : null
+      };
+    });
 
     // Tính phần trăm hoàn thành
     const completedCount = result.filter(r => r.completed).length;

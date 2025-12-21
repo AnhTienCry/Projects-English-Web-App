@@ -23,6 +23,7 @@ class LessonTopicScreen extends StatefulWidget {
 class _LessonTopicScreenState extends State<LessonTopicScreen> {
   List<dynamic> _topics = [];
   Map<String, bool> _completedStatus = {}; // Trạng thái hoàn thành từng topic
+  Map<String, DateTime?> _completedAt = {}; // Thời gian hoàn thành từng topic
   bool _isLoading = true;
   String? _error;
 
@@ -39,6 +40,7 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
       _error = null;
       _topics = [];
       _completedStatus = {};
+      _completedAt = {};
     });
 
     final url = '${ApiConfig.baseUrl}${ApiConfig.topicsByLessonEndpoint}/${widget.lessonId}';
@@ -75,11 +77,20 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
 
       // Parse trạng thái hoàn thành
       final Map<String, bool> completed = {};
+      final Map<String, DateTime?> completedAtMap = {};
       if (statusData is Map && statusData['topics'] is List) {
         for (final t in statusData['topics']) {
           final id = (t['_id'] ?? '').toString();
           if (id.isNotEmpty) {
             completed[id] = t['completed'] == true;
+            // Parse completedAt nếu có
+            if (t['completedAt'] != null) {
+              try {
+                completedAtMap[id] = DateTime.parse(t['completedAt'].toString());
+              } catch (_) {
+                completedAtMap[id] = null;
+              }
+            }
           }
         }
       }
@@ -88,6 +99,7 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
       setState(() {
         _topics = list;
         _completedStatus = completed;
+        _completedAt = completedAtMap;
         _isLoading = false;
         _error = list.isEmpty ? 'Chưa có topic cho bài học này.' : null;
       });
@@ -115,11 +127,39 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
     }
   }
 
+  /// Format thời gian hoàn thành theo định dạng dễ đọc
+  String _formatCompletedAt(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inDays == 0) {
+      // Trong ngày hôm nay
+      final hour = dateTime.hour.toString().padLeft(2, '0');
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      return 'Hôm nay lúc $hour:$minute';
+    } else if (diff.inDays == 1) {
+      final hour = dateTime.hour.toString().padLeft(2, '0');
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      return 'Hôm qua lúc $hour:$minute';
+    } else if (diff.inDays < 7) {
+      return '${diff.inDays} ngày trước';
+    } else {
+      // Format đầy đủ: dd/MM/yyyy HH:mm
+      final day = dateTime.day.toString().padLeft(2, '0');
+      final month = dateTime.month.toString().padLeft(2, '0');
+      final year = dateTime.year;
+      final hour = dateTime.hour.toString().padLeft(2, '0');
+      final minute = dateTime.minute.toString().padLeft(2, '0');
+      return '$day/$month/$year lúc $hour:$minute';
+    }
+  }
+
   Widget _buildTopicTile(dynamic topic) {
     final title = (topic['title'] ?? topic['name'] ?? 'Untitled Topic').toString();
     final subtitle = (topic['description'] ?? '').toString();
     final id = (topic['id'] ?? topic['_id'] ?? topic['topicId'] ?? '').toString();
     final isCompleted = _completedStatus[id] == true;
+    final completedAt = _completedAt[id];
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -218,6 +258,23 @@ class _LessonTopicScreenState extends State<LessonTopicScreen> {
                           ),
                       ],
                     ),
+                    // Hiển thị thời gian hoàn thành
+                    if (isCompleted && completedAt != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.access_time, size: 12, color: Colors.grey.shade500),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCompletedAt(completedAt),
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     if (subtitle.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
